@@ -282,7 +282,7 @@ const firebaseConfig = {
 const ADMIN = "daniela";
 const TEAM = ["Alejandra Guzmán","Alejandro Cifuentes","Ana Carolina Pacheco","Andrea Linares","Angel Mujica","Angelli Torres","Charles Dittmar","Daniela","Gianfranco","Guillermo Sosa","Isabella Bolívar Méndez","Isabella Maggio","José Luis Hernández","Karolina Mendez","Katherin Crithian","Katherina Rosales","Klaus Rauch","Luis J. Pérez","Mariana Occupati","Mavi Rodriguez","Mikhaela","Samantha Trabulsi","Solsiré Blanco","Wladimir Manrique"];
 /* Se muestra solo el nombre; las dos Isabella se distinguen con la inicial */
-const SHOW = {"Ana Carolina Pacheco":"Ana Carolina","José Luis Hernández":"José Luis","Isabella Bolívar Méndez":"Isabella B.","Isabella Maggio":"Isabella M.","Luis J. Pérez":"Luis"};
+const SHOW = {"Ana Carolina Pacheco":"Ana Carolina","José Luis Hernández":"José Luis","Isabella Bolívar Méndez":"Isabella B.","Isabella Maggio":"Isabella M.","Luis J. Pérez":"Luis","Katherin Crithian":"Katerin"};
 const keyOf = n => n.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const NAME = Object.fromEntries(TEAM.map(n=>[keyOf(n), SHOW[n] || n.split(" ")[0]]));
 const KEYS = TEAM.map(keyOf).sort((a,b)=>NAME[a].localeCompare(NAME[b],"es"));
