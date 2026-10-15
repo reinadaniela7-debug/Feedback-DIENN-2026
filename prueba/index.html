@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PRUEBA · Feedback 360 DIENN 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap">
+<style>
+/* Layout: lienzo punteado; cada persona es un carril horizontal de notas adhesivas visible de un vistazo, el feedback privado se abre en una hoja inferior */
+:root{
+  --bg:#F4F1FA; --dots:#D9D2EA; --surface:#FFFFFF; --ink:#1E1A33; --muted:#6A6483; --line:#E6E0F2;
+  --accent:#6C4CF1; --accent-2:#FF7A59; --blue:#2563EB; --blue-ink:#FFFFFF; --accent-ink:#FFFFFF; --soft:#EEE9FD; --ok:#178A4C; --ok-soft:#DDF5E7; --warn:#A35F00; --danger:#C2271D;
+  --note-ink:#2A2418; --n-yellow:#FFE77A; --n-pink:#FFC2D6; --n-green:#BFF0C4; --n-blue:#BBE1FF; --n-violet:#D9C9FF; --n-peach:#FFD3B0;
+  --shadow:0 1px 2px rgba(40,25,90,.06),0 10px 30px rgba(40,25,90,.08);
+  --hero:linear-gradient(120deg,#6C4CF1 0%,#9B5CF6 55%,#FF7A59 120%);
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Figtree","Segoe UI",system-ui,sans-serif;
+  --hand:"Nunito","Figtree",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14121F; --dots:#2A2640; --surface:#1D1A2C; --ink:#EEEAF8; --muted:#A9A3C2; --line:#2F2A45;
+  --accent:#A693FF; --accent-2:#FF9B80; --blue:#5B8CFF; --blue-ink:#0B1530; --accent-ink:#17122E; --soft:#2A2445; --ok:#6FD99B; --ok-soft:#173326; --warn:#F2B552; --danger:#FF8C82;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  --hero:linear-gradient(120deg,#4B33C4 0%,#7440C9 55%,#C8573D 120%); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121F; --dots:#2A2640; --surface:#1D1A2C; --ink:#EEEAF8; --muted:#A9A3C2; --line:#2F2A45;
+  --accent:#A693FF; --accent-2:#FF9B80; --blue:#5B8CFF; --blue-ink:#0B1530; --accent-ink:#17122E; --soft:#2A2445; --ok:#6FD99B; --ok-soft:#173326; --warn:#F2B552; --danger:#FF8C82;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  --hero:linear-gradient(120deg,#4B33C4 0%,#7440C9 55%,#C8573D 120%); color-scheme:dark}
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+body{background-color:var(--bg);background-image:radial-gradient(var(--dots) 1.2px,transparent 1.4px);background-size:24px 24px;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1100px;margin:0 auto;padding-block:16px 64px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.3rem;font-weight:700}
+p{margin:0}
+.muted{color:var(--muted)} .small{font-size:.86rem}
+.eyebrow{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:.55rem 1.05rem;border-radius:999px;font-weight:700}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.link{background:none;border:0;padding:0;color:var(--accent);font-weight:700}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.notice{padding:10px 14px;border-radius:12px;font-size:.92rem}
+.notice.err{border:1px solid var(--danger);color:var(--danger)}
+label{font-weight:700;font-size:.92rem;display:block;margin-bottom:6px}
+input[type=password],select,textarea{width:100%;padding:.7rem .85rem;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+textarea{min-height:110px;resize:vertical}
+
+header.top{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:999px;padding:6px 8px 6px 10px;box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:10px;user-select:none}
+.mark{width:32px;height:32px;border-radius:9px;background:var(--n-yellow);color:var(--note-ink);display:grid;place-items:center;font-family:var(--hand);font-weight:700;font-size:1.1rem;transform:rotate(-7deg);box-shadow:0 3px 8px rgba(0,0,0,.12)}
+.brand b{font-family:var(--display);font-size:1.02rem}
+@media (max-width:480px){.brand b{display:none}header.top{flex-wrap:nowrap}}
+nav.tabs{display:flex;gap:2px;flex-wrap:wrap}
+nav.tabs button{border:0;background:none;padding:.42rem .85rem;border-radius:999px;font-weight:700;color:var(--muted)}
+nav.tabs button[aria-current="true"]{background:var(--accent);color:var(--accent-ink)}
+.dot{display:inline-block;min-width:1.2rem;height:1.2rem;padding:0 .35rem;border-radius:999px;background:var(--accent-2);color:#fff;font-size:.72rem;line-height:1.2rem;text-align:center;margin-left:4px}
+
+.hero{background:var(--hero);color:#fff;border-radius:24px;padding:26px 24px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero .eyebrow{color:rgba(255,255,255,.8)}
+.hero .callout{display:flex;gap:12px;align-items:flex-start;background:var(--n-yellow);color:var(--note-ink);border-radius:14px;padding:14px 16px;box-shadow:0 6px 16px rgba(0,0,0,.15);max-width:72ch}
+.hero .callout .ico{font-size:1.5rem;line-height:1}
+.hero .callout p{margin:0;font-size:1.05rem;line-height:1.45;color:var(--note-ink);opacity:1}
+.hero .callout b{font-weight:800}
+.hero .eyebrow.hi{font-size:1.05rem;letter-spacing:.06em;color:#fff}
+.hero p{max-width:60ch;color:rgba(255,255,255,.92)}
+.hero .stickers{position:absolute;right:18px;top:16px;display:flex;gap:8px;opacity:.95}
+.hero .stickers i{width:34px;height:34px;border-radius:3px 3px 9px 3px;display:block;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+@media (max-width:620px){.hero .stickers{display:none}}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:.35rem .85rem;font-size:.88rem;font-weight:600;color:#fff}
+.pill b{font-variant-numeric:tabular-nums}
+
+/* carriles por persona */
+.lanes{display:flex;flex-direction:column;gap:16px;margin-top:22px}
+.lane{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:14px 0 16px}
+.lane-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:0 16px 10px}
+.who{display:flex;align-items:center;gap:10px;min-width:0}
+.av{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.05rem;color:var(--note-ink);background:var(--c,var(--n-violet))}
+.who b{font-family:var(--display);font-size:1.15rem}
+.count{font-size:.82rem;color:var(--muted)}
+.lane-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.chip{font-size:.74rem;font-weight:700;padding:.18rem .6rem;border-radius:999px;display:inline-block;background:var(--soft);color:var(--muted)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.lockbtn{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:.32rem .8rem;font-weight:700;font-size:.85rem}
+.lockbtn.done{color:var(--ok);background:var(--ok-soft);border-color:transparent}
+.strip{display:flex;gap:14px;overflow-x:auto;padding:8px 16px 10px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.strip>*{scroll-snap-align:start;flex:none}
+
+/* notas */
+.note{--c:var(--n-yellow);width:200px;min-height:150px;background:var(--c);color:var(--note-ink);padding:14px 14px 10px;border-radius:3px 3px 12px 3px;box-shadow:0 1px 1px rgba(0,0,0,.08),0 8px 16px rgba(0,0,0,.12);font-family:var(--hand);font-size:1.06rem;line-height:1.35;display:flex;flex-direction:column;gap:8px;font-weight:600;transition:transform .15s ease}
+.note:hover{transform:translateY(-2px)}
+.note p{white-space:pre-wrap;overflow-wrap:anywhere;flex:1}
+.note .foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--body);font-size:.8rem;gap:6px}
+.c-yellow{--c:var(--n-yellow)} .c-pink{--c:var(--n-pink)} .c-green{--c:var(--n-green)} .c-blue{--c:var(--n-blue)} .c-violet{--c:var(--n-violet)} .c-peach{--c:var(--n-peach)}
+.vote{border:0;background:rgba(255,255,255,.6);color:var(--note-ink);border-radius:999px;padding:.2rem .65rem;font-weight:700;display:inline-flex;gap:5px;align-items:center}
+.vote[aria-pressed="true"]{background:var(--note-ink);color:var(--c)}
+.vote:disabled{cursor:default;opacity:.85}
+.composer{background:transparent;border:2px dashed var(--line);color:var(--muted);box-shadow:none;transform:none;justify-content:center;align-items:center;font-family:var(--body);font-size:.95rem;font-weight:700;cursor:pointer;text-align:center;gap:4px}
+.composer:hover{border-color:var(--accent);color:var(--accent);transform:none}
+.composer .plus{font-size:1.8rem;line-height:1}
+.composer.open{border:0;background:var(--c);color:var(--note-ink);cursor:default;align-items:stretch;justify-content:flex-start;box-shadow:0 0 0 3px var(--accent),0 8px 16px rgba(0,0,0,.12)}
+.composer textarea{background:transparent;border:0;font-family:var(--hand);font-size:1.05rem;min-height:80px;padding:0;color:var(--note-ink);flex:1}
+.composer textarea:focus-visible{outline:none}
+.swatches{display:flex;gap:4px}
+.sw{width:18px;height:18px;border-radius:50%;border:2px solid rgba(0,0,0,.15);background:var(--c);padding:0}
+.sw[aria-pressed="true"]{border-color:var(--note-ink)}
+.notebtn{border:0;background:var(--note-ink);color:var(--c);border-radius:999px;padding:.25rem .75rem;font-weight:700;font-family:var(--body);font-size:.82rem}
+.x{border:0;background:none;color:var(--note-ink);opacity:.65;font-size:.78rem;font-family:var(--body);padding:0;text-decoration:underline}
+.empty{font-size:.9rem;color:var(--muted);align-self:center;padding:0 6px}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:22px 18px;align-items:start}
+.board .note{width:auto}
+
+/* buscador, botón privado, post-its privados, resumen */
+.search{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:.5rem 1rem;box-shadow:var(--shadow);margin-top:18px}
+.search input{border:0;background:transparent;flex:1;min-width:0;font-size:1rem;padding:.2rem 0}
+.search input:focus-visible{outline:none}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.fbbtn{border:0;background:var(--blue);color:var(--blue-ink);border-radius:999px;padding:.55rem 1.05rem;font-weight:800;font-size:.92rem;box-shadow:0 4px 12px color-mix(in srgb,var(--blue) 40%,transparent);display:inline-flex;gap:6px;align-items:center}
+.fbbtn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.fbbtn .n{background:rgba(255,255,255,.3);border-radius:999px;padding:0 .45rem;font-size:.78rem}
+.lane.pending{border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}
+.secret{--c:var(--n-yellow);width:auto;min-height:0;gap:10px}
+.secret .lockbadge{font-family:var(--body);font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.7}
+.secret .part b{display:block;font-family:var(--body);font-size:.8rem;font-weight:800;margin-bottom:2px}
+.secret .foot{margin-top:4px}
+.secret .talk{border:0;background:var(--note-ink);color:var(--c);border-radius:999px;padding:.3rem .8rem;font-weight:700;font-family:var(--body);font-size:.8rem}
+.summary-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:var(--soft);border-radius:14px;padding:10px 14px;min-width:110px}
+.stat b{display:block;font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:.8rem;color:var(--muted)}
+.words{display:flex;flex-wrap:wrap;gap:6px}
+.word{background:var(--soft);color:var(--accent);border-radius:999px;padding:.2rem .7rem;font-weight:700;font-size:.85rem}
+.top-quote{font-family:var(--hand);font-size:1.1rem;background:var(--n-yellow);color:var(--note-ink);padding:10px 14px;border-radius:3px 3px 10px 3px}
+
+/* barras de progreso */
+.progress{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:640px}
+@media (max-width:560px){.progress{grid-template-columns:1fr}}
+.prog{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.prog .lbl{display:flex;justify-content:space-between;gap:8px;font-size:.86rem;font-weight:700;color:#fff}
+.prog .lbl b{font-variant-numeric:tabular-nums}
+.track{height:10px;border-radius:999px;background:rgba(255,255,255,.25);overflow:hidden}
+.track i{display:block;height:100%;border-radius:999px;background:#fff;transition:width .4s ease}
+.prog.done .track i{background:#7CF0A6}
+.hero .lead{font-size:1.02rem;line-height:1.55;max-width:68ch;color:#fff}
+.hero .lead b{font-weight:800}
+.how{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:760px}
+@media (max-width:560px){.how{grid-template-columns:1fr}}
+.hero .qbox{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:10px 14px;color:#fff;display:flex;flex-direction:column;gap:2px}
+.hero .qbox b{font-family:var(--display);font-size:1.05rem}
+.hero .qbox span{font-size:.92rem;line-height:1.4;color:rgba(255,255,255,.92)}
+.ptip{font-size:.78rem;line-height:1.35;color:rgba(255,255,255,.88)}
+/* hoja de post-its privados */
+.pboard{display:grid;grid-template-columns:1fr;gap:16px}
+@media (max-width:700px){.pboard{grid-template-columns:1fr}}
+.pcol{display:flex;flex-direction:column;gap:12px;border-radius:18px;padding:14px;background:var(--bg)}
+.pcol .tag{align-self:flex-start;font-family:var(--display);font-weight:800;font-size:1.05rem;padding:.25rem .85rem;border-radius:999px}
+.pcol.gift .tag{background:var(--accent-2);color:#fff}
+.pcol.rec .tag{background:var(--accent);color:var(--accent-ink)}
+.pnote{width:auto;min-height:0}
+.pform{transform:none}
+.pform textarea{background:transparent;border:0;font-family:var(--hand);font-size:1.05rem;min-height:90px;padding:0;color:var(--note-ink)}
+.pform textarea:focus-visible{outline:none}
+.pform .hint{font-family:var(--body);color:var(--note-ink);opacity:.75}
+.sentlist{display:flex;flex-direction:column;gap:10px}
+.sentlist .note{min-height:0;font-size:.98rem;opacity:.92}
+.sentlist .eyebrow{margin-top:2px}
+
+/* hoja de feedback privado */
+html.lock,html.lock body{overflow:hidden;overscroll-behavior:none}
+.scrim{overscroll-behavior:contain;position:fixed;inset:0;background:rgba(15,10,35,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:min(760px,100%);max-height:92vh;overflow-y:auto;overscroll-behavior:contain;border-radius:24px 24px 0 0;padding:22px max(18px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));display:flex;flex-direction:column;gap:14px;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+@media (min-width:800px){.scrim{align-items:center}.sheet{border-radius:24px}}
+.fbgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.fbgrid{grid-template-columns:1fr}}
+.fbpart{display:flex;flex-direction:column;gap:6px;border-radius:16px;padding:14px;background:var(--bg)}
+.fbpart .tag{font-weight:800;font-family:var(--display);font-size:1.1rem}
+.fbpart.gift{background:color-mix(in srgb,var(--accent-2) 14%,var(--surface));border:2px solid var(--accent-2)}
+/* gift first */
+.fbpart.gift .tag{display:inline-block;align-self:flex-start;background:var(--accent-2);color:#fff;padding:.25rem .8rem;border-radius:999px}
+.fbpart.rec{border:2px solid var(--accent)}
+.fbpart.rec .tag{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);padding:.25rem .8rem;border-radius:999px}
+.step{display:flex;flex-direction:column;gap:4px}
+.step span{font-weight:700;font-size:.86rem}
+.step textarea{min-height:58px}
+.tipbox{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:.88rem}
+.tipbox b{font-family:var(--display)}
+.tipbox ul{margin:6px 0 0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px}
+.fbpart textarea{background:var(--surface)}
+.hint{font-size:.8rem;color:var(--muted)} .hint.warn{color:var(--warn)}
+details.sec{display:flex;flex-direction:column}
+details.sec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::after{content:"▾";margin-left:auto;font-size:1.1rem;color:var(--muted);transition:transform .15s ease}
+details.sec:not([open])>summary::after{transform:rotate(-90deg)}
+details.sec>summary h2{font-size:1.15rem}
+details.sec[open]>summary{margin-bottom:12px}
+details.sec>p{margin:0 0 10px}
+details.tips summary{cursor:pointer;font-weight:700;color:var(--accent);font-size:.9rem}
+details.tips ul{margin:8px 0 0;padding-left:1.1rem;display:flex;flex-direction:column;gap:6px;font-size:.9rem}
+
+.private{border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.quote{border-radius:14px;padding:12px 14px;background:var(--bg)}
+.quote b{display:block;font-family:var(--display);margin-bottom:2px}
+.quote.rec b{color:var(--accent)} .quote.gift b{color:var(--accent-2)}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;padding:4px}
+.msg{max-width:85%;padding:9px 12px;border-radius:16px;font-size:.93rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:4px}
+.msg.them{align-self:flex-start;background:var(--soft);border-bottom-left-radius:4px}
+.msg small{display:block;opacity:.75;font-size:.72rem;margin-bottom:2px}
+
+.login{max-width:440px;margin:4vh auto 0}
+.login .hero{margin-bottom:-8px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);font-size:.92rem}
+th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tablewrap{overflow-x:auto}
+@media (max-width:560px){
+  .tablewrap{padding:6px 14px}
+  .tablewrap thead{display:none}
+  .tablewrap tr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .tablewrap tr:last-child{border-bottom:0}
+  .tablewrap td{border:0;padding:0;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-wrap:wrap}
+  .tablewrap td[data-l]{gap:4px;grid-column:1/-1;flex-wrap:nowrap}
+  .tablewrap td[data-l] .muted{white-space:nowrap}
+  .tablewrap td:first-child{font-weight:700}
+  .tablewrap td:nth-child(2){justify-self:end}
+  .tablewrap td[data-l]::before{content:attr(data-l) ":";color:var(--muted);font-size:.82rem}
+}
+@media (max-width:700px){input,select,textarea{font-size:16px!important}}
+@media (max-width:400px){nav.tabs{flex-wrap:nowrap}nav.tabs button{padding:.4rem .6rem;font-size:.88rem;white-space:nowrap}header.top{gap:8px;padding-inline:10px}}
+@media (max-width:480px){
+  .hero{padding:20px 18px;border-radius:20px}
+  .hero h1{font-size:1.75rem}
+  .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stat{min-width:0;padding:10px}
+  .summary-card{padding:16px}
+  details.sec>summary{padding:12px 14px}
+  details.sec>summary h2{font-size:1.05rem}
+}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom, 0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;font-size:.9rem;z-index:30}
+footer{margin-top:36px;text-align:center;font-size:.8rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}.note{transform:none}}
+</style>
+</head>
+<body>
+<div style="background:#FFE77A;color:#2A2418;text-align:center;font:700 14px/1.4 system-ui,sans-serif;padding:8px 12px">🧪 Versión de prueba: lo que escribas aquí no aparece en la ronda real.</div>
+<div class="wrap">
+  <header class="top">
+    <div class="brand" id="brand"><div class="mark" aria-hidden="true">F</div><b>Feedback 360 DIENN 2026</b></div>
+    <nav class="tabs" id="tabs" hidden></nav>
+  </header>
+  <main id="app">
+    <div class="card login stack"><h2>Cargando el tablero…</h2><p class="muted">Aquí dejarás notas para el equipo y feedback privado.</p></div>
+  </main>
+  <footer>Las notas son públicas y anónimas. El feedback privado va cifrado: solo lo lee quien lo recibe.</footer>
+</div>
+<div id="sheet"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDAiQwdseqZnxh0QuHkrpBrKyli0FIFMi4",
+  authDomain: "feedback-dienn-2026.firebaseapp.com",
+  projectId: "feedback-dienn-2026",
+  storageBucket: "feedback-dienn-2026.firebasestorage.app",
+  messagingSenderId: "181202884761",
+  appId: "1:181202884761:web:1b45ed5eafb8c7d3134008"
+};
+const ADMIN = "daniela";
+const TEAM = ["Alejandra Guzmán","Alejandro Cifuentes","Ana Carolina Pacheco","Andrea Linares","Angel Mujica","Angelli Torres","Charles Dittmar","Daniela","Gianfranco","Guillermo Sosa","Isabella Bolívar Méndez","Isabella Maggio","José Luis Hernández","Karolina Mendez","Katherin Crithian","Katherina Rosales","Klaus Rauch","Luis J. Pérez","Mariana Occupati","Mavi Rodriguez","Mikhaela","Samantha Trabulsi","Solsiré Blanco","Wladimir Manrique"];
+/* Se muestra solo el nombre; las dos Isabella se distinguen con la inicial */
+const SHOW = {"Ana Carolina Pacheco":"Ana Carolina","José Luis Hernández":"José Luis","Isabella Bolívar Méndez":"Isabella B.","Isabella Maggio":"Isabella M.","Luis J. Pérez":"Luis","Katherin Crithian":"Katerin"};
+const keyOf = n => n.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const NAME = Object.fromEntries(TEAM.map(n=>[keyOf(n), SHOW[n] || n.split(" ")[0]]));
+const KEYS = TEAM.map(keyOf).sort((a,b)=>NAME[a].localeCompare(NAME[b],"es"));
+const OTHERS = KEYS.length - 1;
+const MIN_FB = 3;
+const COLORS = ["yellow","pink","green","blue","violet","peach"];
+const MONTH = new Date().toISOString().slice(0,7);
+const avColor = k => "var(--n-"+COLORS[KEYS.indexOf(k)%COLORS.length]+")";
+const randColor = () => COLORS[Math.floor(Math.random()*COLORS.length)];
+
+const isAdmin = () => S.me===ADMIN;
+const S = { db:null, ready:false, failed:false,
+  members:{}, stats:{}, notes:[], me:null, priv:null,
+  given:{}, myNotes:[], received:[], rawThreads:{}, threads:{},
+  view:"home", thread:null, busy:false, err:"", loginKey:"",
+  compose:{to:null, text:"", color:"yellow"}, fbFor:null, q:"", unsubs:[] };
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rot = id => { let h=0; for(const c of String(id)) h=(h*31+c.charCodeAt(0))|0; return ((Math.abs(h)%5)-2)*0.9+"deg"; };
+const store = { get(k){try{return localStorage.getItem(k) ?? sessionStorage.getItem(k)}catch(e){return null}}, set(k,v){try{sessionStorage.removeItem(k); v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}} };
+const lget = k => {try{return localStorage.getItem(k)}catch(e){return null}};
+const lset = (k,v) => {try{localStorage.setItem(k,v)}catch(e){}};
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
+
+/* ---------- cifrado ---------- */
+const enc = new TextEncoder(), dec = new TextDecoder();
+const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const unb64 = s => Uint8Array.from(atob(s), c=>c.charCodeAt(0));
+const rand = n => crypto.getRandomValues(new Uint8Array(n));
+const newId = () => b64(rand(12)).replace(/[^A-Za-z0-9]/g,"x");
+const RSA = {name:"RSA-OAEP", hash:"SHA-256"};
+async function pwKey(pw, salt){
+  const base = await crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:150000, hash:"SHA-256"}, base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+}
+async function aesEnc(rawKey, text){
+  const k = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["encrypt"]);
+  const iv = rand(12);
+  return {iv:b64(iv), ct:b64(await crypto.subtle.encrypt({name:"AES-GCM", iv}, k, enc.encode(text)))};
+}
+async function aesDec(rawKey, {iv, ct}){
+  const k = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
+  return dec.decode(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(iv)}, k, unb64(ct)));
+}
+async function seal(pubJwk, obj, rawKey){
+  rawKey = rawKey || rand(32);
+  const pub = await crypto.subtle.importKey("jwk", pubJwk, RSA, false, ["encrypt"]);
+  const ek = await crypto.subtle.encrypt({name:"RSA-OAEP"}, pub, rawKey);
+  return {sealed:{ek:b64(ek), ...(await aesEnc(rawKey, JSON.stringify(obj)))}, rawKey};
+}
+async function unseal(sealed){
+  const rawKey = new Uint8Array(await crypto.subtle.decrypt({name:"RSA-OAEP"}, S.priv, unb64(sealed.ek)));
+  return {obj: JSON.parse(await aesDec(rawKey, sealed)), rawKey};
+}
+
+/* ---------- arranque ---------- */
+async function boot(){
+  const timer = setTimeout(()=>{ if(!S.db){ S.failed=true; render(); } }, 12000);
+  try{
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    S.db = db; clearTimeout(timer);
+    db.collection("prueba_members").onSnapshot(snap=>{
+      const m = {}; snap.docs.forEach(d=>{ const v=d.data(); if(v && v.pub) m[d.id]=v; });
+      S.members = m; S.ready = true; render(); deliverPending();
+    }, ()=>{ S.failed=true; render(); });
+    db.collection("prueba_notes").onSnapshot(snap=>{
+      S.notes = snap.docs.map(d=>({id:d.id, ...d.data()})); render();
+    }, ()=>{});
+    db.collection("prueba_stats").onSnapshot(snap=>{ const s={}; snap.docs.forEach(d=>s[d.id]=d.data()); S.stats=s; if(S.view==="admin") render(); }, ()=>{});
+    await restoreSession();
+  }catch(e){ S.failed=true; render(); }
+}
+async function restoreSession(){
+  const me = store.get("rfp.me"), pk = store.get("rfp.priv");
+  if(!me || !pk) return;
+  try{ S.priv = await crypto.subtle.importKey("pkcs8", unb64(pk), RSA, false, ["decrypt"]); S.me = me; startMine(); render(); }
+  catch(e){ store.set("rfp.me",null); store.set("rfp.priv",null); }
+}
+
+/* ---------- registro e ingreso ---------- */
+async function register(key, pw, pw2){
+  if(pw.length < 6) throw "La contraseña necesita al menos 6 caracteres.";
+  if(pw !== pw2) throw "Las dos contraseñas no coinciden.";
+  const ref = S.db.doc("prueba_members/"+key);
+  const pair = await crypto.subtle.generateKey({...RSA, modulusLength:2048, publicExponent:new Uint8Array([1,0,1])}, true, ["encrypt","decrypt"]);
+  const pub = await crypto.subtle.exportKey("jwk", pair.publicKey);
+  const pkcs8 = await crypto.subtle.exportKey("pkcs8", pair.privateKey);
+  const salt = rand(16), iv = rand(12);
+  const wrapped = await crypto.subtle.encrypt({name:"AES-GCM", iv}, await pwKey(pw, salt), pkcs8);
+  await S.db.runTransaction(async tx=>{
+    const cur = await tx.get(ref);
+    if(cur.exists) throw "Este nombre ya está registrado. Ingresa con tu contraseña.";
+    tx.set(ref, {pub, salt:b64(salt), iv:b64(iv), wrapped:b64(wrapped), joined:MONTH});
+  });
+  S.members[key] = {pub};
+  await S.db.doc("prueba_stats/"+key).set({given:0, notes:0});
+  await finishLogin(key, pkcs8);
+}
+async function login(key, pw){
+  const m = S.members[key];
+  if(!m) throw "Este nombre todavía no está registrado.";
+  let pkcs8;
+  try{ pkcs8 = await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(m.iv)}, await pwKey(pw, unb64(m.salt)), unb64(m.wrapped)); }
+  catch(e){ throw "Contraseña incorrecta. Vuelve a intentarlo."; }
+  await finishLogin(key, pkcs8);
+}
+async function finishLogin(key, pkcs8){
+  S.priv = await crypto.subtle.importKey("pkcs8", pkcs8, RSA, false, ["decrypt"]);
+  S.me = key; store.set("rfp.me", key); store.set("rfp.priv", b64(pkcs8)); lset("rfp.last", key);
+  S.view = "home"; startMine(); render();
+}
+function logout(){
+  S.unsubs.forEach(u=>u()); S.unsubs=[];
+  Object.assign(S,{me:null,priv:null,given:{},myNotes:[],received:[],rawThreads:{},threads:{},view:"home",thread:null,fbFor:null});
+  store.set("rfp.me",null); store.set("rfp.priv",null); render();
+}
+
+/* ---------- datos personales ---------- */
+function startMine(){
+  const db = S.db, me = S.me;
+  S.unsubs.push(db.doc("prueba_given/"+me).onSnapshot(async d=>{
+    if(!d.exists){ S.given={}; S.myNotes=[]; render(); return; }
+    try{ const o = (await unseal(d.data())).obj; S.given = normGiven(o.list); S.myNotes = o.notes || []; }catch(e){}
+    await processThreads(); render(); deliverPending();
+  }, ()=>{}));
+  S.unsubs.push(db.collection("prueba_feedback").where("to","==",me).onSnapshot(async snap=>{
+    const out = [];
+    for(const d of snap.docs){ try{ const {obj, rawKey} = await unseal(d.data()); out.push({fid:d.id, month:d.data().month, ...obj, k:b64(rawKey)}); }catch(e){} }
+    S.received = out; await processThreads(); render();
+  }, ()=>{}));
+  S.unsubs.push(db.collection("prueba_threads").onSnapshot(async snap=>{
+    const r = {}; snap.docs.forEach(d=>r[d.id]=d.data()); S.rawThreads = r; await processThreads(); render();
+  }, ()=>{}));
+}
+const normGiven = l => Object.fromEntries(Object.entries(l||{}).map(([k,v])=>[k, Array.isArray(v)?v:[v]]));
+const givenTo = k => S.given[k] || [];
+const fbPeople = () => Object.keys(S.given).filter(k=>givenTo(k).length).length;
+async function saveMine(list, notes){
+  const {sealed} = await seal(S.members[S.me].pub, {list, notes});
+  await S.db.doc("prueba_given/"+S.me).set(sealed);
+  S.given = list; S.myNotes = notes;
+  const people = new Set(notes.map(n=>n.to)).size;
+  await S.db.doc("prueba_stats/"+S.me).set({given:Object.keys(list).filter(k=>list[k].length).length, notes:people});
+}
+
+/* ---------- notas públicas ---------- */
+async function addNote(to, text, color){
+  const id = newId();
+  await S.db.doc("prueba_notes/"+id).set({to, text, color, votes:[], month:MONTH});
+  await saveMine(S.given, [...S.myNotes, {id, to}]);
+}
+async function deleteNote(id){
+  await S.db.doc("prueba_notes/"+id).delete();
+  await saveMine(S.given, S.myNotes.filter(n=>n.id!==id));
+}
+async function toggleVote(id){
+  const ref = S.db.doc("prueba_notes/"+id), snap = await ref.get(); if(!snap.exists) return;
+  const v = new Set(snap.data().votes||[]);
+  v.has(S.me) ? v.delete(S.me) : v.add(S.me);
+  await ref.update({votes:[...v]});
+}
+const isMine = id => S.myNotes.some(n=>n.id===id);
+const notesFor = k => S.notes.filter(n=>n.to===k).sort((a,b)=>(b.votes?.length||0)-(a.votes?.length||0) || (a.id<b.id?-1:1));
+
+/* ---------- feedback privado ---------- */
+async function deliver(to, data){
+  const {sealed, rawKey} = await seal(S.members[to].pub, data);
+  const fid = newId();
+  await S.db.doc("prueba_feedback/"+fid).set({to, month:MONTH, ...sealed});
+  return {fid, k:b64(rawKey)};
+}
+async function submitFeedback(to, data){
+  const entry = S.members[to] ? {...await deliver(to, data), data} : {pending:true, data};
+  await saveMine({...S.given, [to]:[...givenTo(to), entry]}, S.myNotes);
+}
+let delivering = false;
+async function deliverPending(){
+  if(delivering || !S.me || !S.priv || !S.members[S.me]) return;
+  const due = Object.keys(S.given).filter(to=>S.members[to] && givenTo(to).some(g=>g.pending));
+  if(!due.length) return;
+  delivering = true;
+  try{ const list = {...S.given};
+    for(const to of due){ const out=[]; for(const g of givenTo(to)) out.push(g.pending ? {...await deliver(to, g.data), data:g.data} : g); list[to]=out; }
+    await saveMine(list, S.myNotes); render(); }catch(e){}
+  delivering = false;
+}
+function keyFor(fid){
+  const r = S.received.find(x=>x.fid===fid); if(r) return {k:r.k, role:"r"};
+  for(const [to, arr] of Object.entries(S.given)) for(const g of arr) if(g.fid===fid) return {k:g.k, role:"g", to};
+  return null;
+}
+async function processThreads(){
+  const out = {};
+  for(const [fid, t] of Object.entries(S.rawThreads)){
+    const kf = keyFor(fid); if(!kf) continue;
+    const raw = unb64(kf.k), msgs = [];
+    for(const m of (t.msgs||[])){ try{ msgs.push({by:m.by, text: await aesDec(raw, m)}); }catch(e){} }
+    out[fid] = {role:kf.role, to:kf.to, msgs};
+  }
+  S.threads = out;
+}
+async function sendMsg(fid, text){
+  const kf = keyFor(fid); if(!kf) return;
+  const ref = S.db.doc("prueba_threads/"+fid), cur = await ref.get();
+  const msgs = cur.exists ? [...(cur.data().msgs||[])] : [];
+  msgs.push({by:kf.role, ...(await aesEnc(unb64(kf.k), text))});
+  await ref.set({msgs: msgs.slice(-80)});
+}
+const invitations = () => Object.entries(S.threads).filter(([fid,t])=>t.role==="g" && t.msgs.length);
+const isNew = (fid,t) => t.msgs.length>(+(lget("rfp.seen."+fid)||0)) && t.msgs[t.msgs.length-1].by!==t.role;
+const unseen = () => Object.entries(S.threads).filter(([fid,t])=>isNew(fid,t)).length;
+
+/* ---------- vistas ---------- */
+function render(){
+  const app = $("#app"), tabs = $("#tabs");
+  const a = document.activeElement, focusId = a && a.id, sel = a && "selectionStart" in a ? [a.selectionStart, a.selectionEnd] : null;
+  const keep = {}; document.querySelectorAll("#app input[id], #app textarea[id], #sheet textarea[id]").forEach(el=>{ if(el.value && el.id!=="noteText" && !FB_IDS.includes(el.id) && el.id!=="q") keep[el.id]=el.value; });
+  const scrolls = {}; document.querySelectorAll(".strip[data-k]").forEach(el=>scrolls[el.dataset.k]=el.scrollLeft);
+  if(S.view==="admin"){ tabs.hidden=true; app.innerHTML = viewAdmin(); }
+  else if(S.failed && !S.ready){ tabs.hidden=true; app.innerHTML = `<div class="card login stack"><h2>No pudimos abrir el tablero</h2><p class="muted">Revisa tu conexión a internet y recarga la página.</p></div>`; }
+  else if(!S.ready) return;
+  else if(!S.me){ tabs.hidden=true; app.innerHTML = viewLogin(); }
+  else{
+    const n = 0;
+    tabs.hidden = false;
+    tabs.innerHTML = `<button data-act="go" data-v="home" aria-current="${S.view!=="mine"}">Equipo</button>
+      <button data-act="go" data-v="mine" aria-current="${S.view==="mine"}">Mi tablero${n?`<span class="dot">${n}</span>`:""}</button>
+      <button data-act="logout">Salir</button>`;
+    app.innerHTML = S.view==="mine" ? viewMine() : viewHome();
+  }
+  $("#sheet").innerHTML = S.me && S.fbFor ? viewSheet(S.fbFor) : "";
+  document.documentElement.classList.toggle("lock", !!(S.me && S.fbFor));
+  if(S.fbFor) updateHints();
+  document.querySelectorAll(".strip[data-k]").forEach(el=>{ if(scrolls[el.dataset.k]) el.scrollLeft=scrolls[el.dataset.k]; });
+  for(const [id,v] of Object.entries(keep)){ const el=document.getElementById(id); if(el && !el.value) el.value=v; }
+  document.querySelectorAll(".chat").forEach(c=>c.scrollTop=c.scrollHeight);
+  if(focusId){ const el=document.getElementById(focusId); if(el && el!==document.activeElement){ el.focus({preventScroll:true}); if(sel && el.setSelectionRange) try{el.setSelectionRange(sel[0],sel[1])}catch(e){} } }
+}
+
+function viewLogin(){
+  if(!S.loginInit){ S.loginInit=true; const l=lget("rfp.last"); if(!S.loginKey && KEYS.includes(l)) S.loginKey=l; }
+  const k = S.loginKey, taken = k && S.members[k];
+  const opts = KEYS.map(x=>`<option value="${x}" ${x===k?"selected":""}>${esc(NAME[x])}${S.members[x]?"":" · nuevo"}</option>`).join("");
+  return `<div class="login stack">
+    <div class="hero"><span class="eyebrow">Feedback 360 DIENN 2026</span><h1>Hola 👋 ¿quién eres?</h1>
+      <p>Elige tu nombre. La primera vez creas tu contraseña; después solo la escribes para entrar.</p></div>
+    <form class="card stack" id="loginForm" autocomplete="off">
+    <div><label for="who">Tu nombre</label><select id="who" required><option value="">Selecciona tu nombre…</option>${opts}</select></div>
+    ${!k?"":taken?`
+      <div><label for="pw">Tu contraseña</label><input id="pw" type="password" autocomplete="current-password" required></div>
+      <button class="btn primary" type="submit" ${S.busy?"disabled":""}>${S.busy?"Entrando…":"Entrar"}</button>`:`
+      <div><label for="pw">Crea tu contraseña</label><input id="pw" type="password" autocomplete="new-password" minlength="6" required><p class="hint">Mínimo 6 caracteres. No se puede recuperar, guárdala bien.</p></div>
+      <div><label for="pw2">Repite tu contraseña</label><input id="pw2" type="password" autocomplete="new-password" required></div>
+      <button class="btn primary" type="submit" ${S.busy?"disabled":""}>${S.busy?"Registrando…":"Registrarme"}</button>`}
+    ${S.err?`<p class="notice err">${esc(S.err)}</p>`:""}
+  </form></div>`;
+}
+
+function noteHtml(n, canVote){
+  const votes = n.votes||[], mine = isMine(n.id), voted = votes.includes(S.me);
+  return `<article class="note c-${esc(n.color)}" style="--r:${rot(n.id)}">
+    <p>${esc(n.text)}</p>
+    <div class="foot">
+      ${mine?`<button class="x" data-act="delnote" data-id="${n.id}">Borrar</button>`:"<span></span>"}
+      <button class="vote" data-act="vote" data-id="${n.id}" aria-pressed="${voted}" ${!canVote||mine?"disabled":""} aria-label="Estoy de acuerdo, ${votes.length} votos">♥ ${votes.length}</button>
+    </div></article>`;
+}
+function composerHtml(k){
+  const c = S.compose;
+  if(c.to!==k) return `<button class="note composer" data-act="opennote" data-k="${k}"><span class="plus">＋</span>Nota para ${esc(NAME[k])}</button>`;
+  return `<form class="note composer open c-${c.color}" id="noteForm">
+    <textarea id="noteText" maxlength="280" placeholder="¿Qué aporta al equipo? ¿Qué quieres reconocerle o agradecerle?" aria-label="Tu nota para ${esc(NAME[k])}">${esc(c.text)}</textarea>
+    <div class="swatches">${COLORS.map(col=>`<button type="button" class="sw c-${col}" data-act="color" data-c="${col}" aria-pressed="${c.color===col}" aria-label="Color ${col}"></button>`).join("")}</div>
+    <div class="foot"><button type="button" class="x" data-act="closenote">Cancelar</button><button class="notebtn" type="submit">Pegar</button></div>
+  </form>`;
+}
+
+function viewHome(){
+  const others = KEYS.filter(k=>k!==S.me);
+  const withNote = new Set(S.myNotes.map(n=>n.to));
+  const fb = fbPeople();
+  const q = S.q.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const order = others.filter(k=>!q || NAME[k].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").includes(q))
+    .sort((a,b)=>(givenTo(a).length>0)-(givenTo(b).length>0) || NAME[a].localeCompare(NAME[b],"es"));
+  const lane = k => {
+    const ns = notesFor(k), sent = givenTo(k).length;
+    return `<section class="lane ${sent?"":"pending"}" aria-label="Notas para ${esc(NAME[k])}">
+      <div class="lane-head">
+        <div class="who"><span class="av" style="--c:${avColor(k)}" aria-hidden="true">${esc(NAME[k][0])}</span>
+          <div><b>${esc(NAME[k])}</b><div class="count">${ns.length?`${ns.length} ${ns.length===1?"nota":"notas"}`:"Aún sin notas"}${withNote.has(k)?" · ✓ tu nota":""}</div></div></div>
+        <div class="lane-actions">${sent?`<span class="chip ok">✓ Le diste feedback</span>`:`<span class="chip">Pendiente</span>`}
+          <button class="fbbtn" data-act="openfb" data-k="${k}">🔒 ${sent?"Otro feedback privado":"Dar feedback privado"}${sent?`<span class="n">${sent}</span>`:""}</button></div>
+      </div>
+      <div class="strip" data-k="${k}">${composerHtml(k)}${ns.map(n=>noteHtml(n,true)).join("")}</div>
+    </section>`;
+  };
+  return `<div class="hero">
+      <div class="stickers" aria-hidden="true"><i style="background:var(--n-yellow);transform:rotate(-8deg)"></i><i style="background:var(--n-pink);transform:rotate(5deg)"></i><i style="background:var(--n-green);transform:rotate(-3deg)"></i></div>
+      <span class="eyebrow hi">Hola, ${esc(NAME[S.me])}</span><h1>El tablero del equipo</h1>
+      <p class="lead">Este Feedback 360 es para reconocernos y ayudarnos a crecer como equipo. Funciona así: en el tablero de cada persona deja una <b>nota pública</b> con lo que aporta al equipo o lo que le agradeces; si alguien ya escribió lo que piensas, dale ♥. Después, elige al menos ${MIN_FB} personas y envíales <b>feedback privado</b>: un regalo para que crezcan, que solo verá esa persona y sin saber que fuiste tú.</p>
+      <div class="progress">
+        <div class="prog ${withNote.size>=others.length?"done":""}"><div class="lbl"><span>📝 Notas públicas</span><b>${withNote.size} de ${others.length}</b></div><div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="${others.length}" aria-valuenow="${withNote.size}"><i style="width:${Math.round(withNote.size/others.length*100)}%"></i></div></div>
+        <div class="prog ${fb>=MIN_FB?"done":""}"><div class="lbl"><span>🔒 Feedback privado</span><b>${Math.min(fb,MIN_FB)} de ${MIN_FB}${fb>=MIN_FB?" ✓":""}</b></div><div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="${MIN_FB}" aria-valuenow="${Math.min(fb,MIN_FB)}"><i style="width:${Math.round(Math.min(fb,MIN_FB)/MIN_FB*100)}%"></i></div><span class="ptip">💡 Recuerda: 3 es el mínimo, ¡puedes darle feedback a todas las personas que quieras!${fb>MIN_FB?` Llevas ${fb}.`:""}</span></div>
+      </div>
+    </div>
+    <label class="search" for="q"><span aria-hidden="true">🔎</span><input id="q" type="search" placeholder="Buscar a alguien del equipo…" value="${esc(S.q)}" autocomplete="off"></label>
+    <div class="lanes">${order.length?order.map(lane).join(""):`<p class="muted">Nadie coincide con “${esc(S.q)}”.</p>`}</div>`;
+}
+
+const KINDS = [
+  {kind:"gift", tag:"🎁 Te regalo para crecer", color:"peach", ph:"El martes noté que interrumpiste antes de que terminaran. Te propongo anotar tu idea y compartirla al final."}];
+const FB_IDS = ["pt_gift"];
+const kindOf = d => d.gift && !d.rec ? "gift" : d.rec && !d.gift ? "rec" : "both";
+function viewSheet(k){
+  const sent = givenTo(k), d = draft(k);
+  const col = K => {
+    const mine = sent.filter(g=>g.data && (g.data[K.kind]));
+    return `<div class="pcol ${K.kind}"><span class="tag">${K.tag}</span>
+      <form class="note pform pnote c-${K.color}" data-kind="${K.kind}">
+        <textarea id="pt_${K.kind}" data-draft maxlength="600" placeholder="${esc(K.ph)}" aria-label="${esc(K.tag)}">${esc(d["pt_"+K.kind]||"")}</textarea>
+        <span class="hint" id="pt_${K.kind}_h"></span>
+        <div class="foot"><span></span><button class="notebtn" type="submit">Pegar post-it</button></div>
+      </form>
+      ${mine.length?`<div class="sentlist"><span class="eyebrow">Ya le pegaste ${mine.length}</span>${mine.map(g=>`<div class="note pnote c-${K.color}" style="--r:${rot(g.fid||g.data[K.kind])}"><p>${esc(g.data[K.kind])}</p>${g.pending?`<div class="foot"><span class="hint">Se entrega cuando entre</span></div>`:""}</div>`).join("")}</div>`:""}
+    </div>`;
+  };
+  return `<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true">
+    <div class="row" style="justify-content:space-between"><div class="who"><span class="av" style="--c:${avColor(k)}" aria-hidden="true">${esc(NAME[k][0])}</span><div><span class="eyebrow">Feedback privado${sent.length?` · ${sent.length} post-its enviados`:""}</span><h2>${esc(NAME[k])}</h2></div></div><button class="btn" data-act="closefb">Listo</button></div>
+    <div class="tipbox"><b>Cómo escribirlo: situación → acción → impacto.</b> Solo ${esc(NAME[k])} lo verá, y no sabrá que fuiste tú. Pega todos los post-its que quieras.
+      <ul><li>Cuenta cuándo pasó, qué hizo y qué efecto tuvo.</li><li>Habla de lo que hace, no de cómo es.</li><li>Usa ejemplos concretos.</li><li>Evita “siempre” y “nunca”.</li><li>El regalo es una oportunidad para dar un posible plan accionable o una solución.</li></ul></div>
+    <div class="pboard">${KINDS.map(col).join("")}</div>
+  </div></div>`;
+}
+function draft(k){ try{ return JSON.parse(lget("rfp.draft3."+S.me+"."+k)||"{}"); }catch(e){ return {}; } }
+function collect(){ const o={}; FB_IDS.forEach(id=>o[id]=($("#"+id)?.value||"").trim()); return o; }
+function updateHints(){
+  const d = collect();
+  for(const id of FB_IDS){
+    const h = $("#"+id+"_h"); if(!h) continue; const v = d[id];
+    if(/\b(siempre|nunca|eres)\b/i.test(v)){ h.className="hint warn"; h.textContent="Revisa “siempre”, “nunca” o “eres”: describe un hecho concreto."; }
+    else if(!v){ h.className="hint"; h.textContent=""; }
+    else if(v.length<20){ h.className="hint"; h.textContent=`Mínimo 20 caracteres (${v.length}).`; }
+    else { h.className="hint"; h.textContent="✓ Listo para pegar"; }
+  }
+}
+
+const STOP = new Set("a al algo algunas algunos ante antes como con contra cual cuando de del desde donde durante e el ella ellas ellos en entre era eres es esa ese eso esta estas este esto estos fue fueron ha hace hacer has hay la las le les lo los mas me mi mis mucho muy nada ni no nos o otra otro para pero poco por porque que quien se sea ser si siempre sin sobre su sus tambien te tiene tienes todo todos tu tus un una uno unos y ya yo eso esa así cada cuando gracias mucho muchas muchos tus ti vez veces bien".split(" "));
+function topWords(texts){
+  const c = {};
+  texts.join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/[^a-zñ]+/).forEach(w=>{ if(w.length>3 && !STOP.has(w)) c[w]=(c[w]||0)+1; });
+  return Object.entries(c).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([w])=>w);
+}
+const secOpen = k => lget("rfp.sec."+k)==="0" ? "" : " open";
+document.addEventListener("toggle", e=>{ const d=e.target; if(d.dataset && d.dataset.sec) lset("rfp.sec."+d.dataset.sec, d.open?"1":"0"); }, true);
+function viewMine(){
+  const ns = notesFor(S.me), rec = S.received;
+  const hearts = ns.reduce((a,n)=>a+(n.votes?.length||0),0);
+  const words = topWords([...ns.map(n=>n.text), ...rec.map(r=>(r.rec||"")+" "+(r.gift||""))]);
+  const best = ns[0] && (ns[0].votes?.length||0)>0 ? ns[0] : null;
+  const fbCard = (r,i) => {
+    const gift = r.gift ?? [r.g_sit,r.g_obs,r.g_prop && "Te propone: "+r.g_prop].filter(Boolean).join(" ");
+    const recT = r.rec ?? [r.r_sit,r.r_act,r.r_imp && "Eso logró que "+r.r_imp].filter(Boolean).join(" ");
+    const kc = kindOf({gift, rec:recT}), cc = kc==="gift"?"peach":kc==="rec"?"violet":"yellow";
+    return `<article class="note secret c-${cc}" style="--r:${rot(r.fid)}">
+      <span class="lockbadge">🔒 Solo para ti</span>
+      ${gift?`<div class="part"><b>🎁 Te regalan para crecer</b><p>${esc(gift)}</p></div>`:""}
+      ${recT?`<div class="part"><b>💜 Te reconocen</b><p>${esc(recT)}</p></div>`:""}
+    </article>`;
+  };
+  return `<div class="stack" style="gap:20px">
+    <div class="hero"><span class="eyebrow">Mi tablero</span><h1>${esc(NAME[S.me])}</h1><p>Todo lo que el equipo te dejó: primero un resumen, luego tus post-its.</p><div class="callout"><span class="ico" aria-hidden="true">💬</span><p>Recuerda que tendremos la oportunidad de profundizar en este feedback en la sesión grupal. <b>Elige tres post-its en los que te gustaría profundizar y entender mejor.</b></p></div></div>
+    <section class="summary-card"><h2>Resumen</h2>
+      <div class="stats"><div class="stat"><b>${ns.length}</b><span>notas públicas</span></div><div class="stat"><b>${hearts}</b><span>♥ de acuerdo</span></div><div class="stat"><b>${rec.length}</b><span>post-its privados</span></div></div>
+      ${words.length?`<div class="stack" style="gap:6px"><span class="eyebrow">Lo que más se repite</span><div class="words">${words.map(w=>`<span class="word">${esc(w)}</span>`).join("")}</div></div>`:""}
+      ${best?`<div class="stack" style="gap:6px"><span class="eyebrow">La nota con más ♥</span><div class="top-quote">“${esc(best.text)}” · ♥ ${best.votes.length}</div></div>`:""}
+      ${!ns.length&&!rec.length?`<p class="muted">Aún no tienes comentarios. Cuando el equipo te escriba, aquí verás el resumen.</p>`:""}
+    </section>
+    <details class="sec" data-sec="priv"${secOpen("priv")}><summary><h2>🔒 Feedback privado para ti</h2><span class="chip">${rec.length}</span></summary>
+      <p class="small muted">Solo tú lo ves. No sabrás quién lo escribió.</p>
+      ${rec.length?`<div class="board">${rec.map(fbCard).join("")}</div>`:`<section class="private"><p class="muted">Aún no has recibido feedback privado.</p></section>`}
+    </details>
+    <details class="sec" data-sec="pub"${secOpen("pub")}><summary><h2>📝 Notas públicas</h2><span class="chip">${ns.length}</span></summary>
+      <p class="small muted">Ordenadas por ♥.</p>
+      <div class="board">${ns.length?ns.map(n=>noteHtml(n,false)).join(""):`<div class="note c-yellow"><p>Todavía no tienes notas. Aparecerán aquí cuando el equipo te escriba.</p></div>`}</div>
+    </details>
+  </div>`;
+}
+function viewThread(fid){
+  const t = S.threads[fid] || {role:keyFor(fid)?.role, msgs:[]};
+  lset("rfp.seen."+fid, String(t.msgs.length));
+  const mine = t.role, other = mine==="r" ? "Quien te dio el feedback" : NAME[t.to], starter = mine==="r" && !t.msgs.length;
+  return `<div class="stack" style="gap:10px">
+    ${t.msgs.length?`<div class="chat">${t.msgs.map(m=>`<div class="msg ${m.by===mine?"me":"them"}"><small>${m.by===mine?"Tú":esc(other)}</small>${esc(m.text)}</div>`).join("")}</div>`:""}
+    <form class="stack" data-thread="${fid}" style="gap:8px">
+      <label for="msg_${fid}">${starter?"Tu invitación a profundizar":"Responder"}</label>
+      <textarea id="msg_${fid}" placeholder="${starter?"Me gustaría entender mejor lo que observaste. ¿Me das otro ejemplo?":"Escribe tu mensaje…"}" required></textarea>
+      <div class="row"><button class="btn primary" type="submit">${starter?"Enviar invitación":"Enviar"}</button>
+      <span class="small muted">${mine==="r"?"Tu nombre se mostrará; el de quien escribió el feedback, no.":"Tu nombre no se mostrará."}</span></div>
+    </form></div>`;
+}
+
+function viewAdmin(){
+  if(!isAdmin()) return `<div class="card login"><p class="muted">Esta sección no está disponible.</p></div>`;
+  const rows = KEYS.map(k=>{
+    const reg = !!S.members[k], st = S.stats[k]||{}, g = st.given||0, n = st.notes||0;
+    return `<tr><td>${esc(NAME[k])}</td><td>${reg?`<span class="chip ok">Registrada</span>`:`<span class="chip">Sin registrarse</span>`}</td>
+      <td data-l="Notas"><b>${n}</b> <span class="muted">de ${OTHERS}</span></td><td data-l="Feedback privado"><b>${g}</b> ${g>=MIN_FB?`<span class="chip ok">✓ mínimo</span>`:`<span class="muted">de ${MIN_FB}</span>`}</td></tr>`;
+  }).join("");
+  const regs = KEYS.filter(k=>S.members[k]).length, minOk = KEYS.filter(k=>(S.stats[k]?.given||0)>=MIN_FB).length;
+  return `<div class="stack" style="gap:18px">
+    <div class="hero"><span class="eyebrow">Seguimiento · solo administración</span><h1>Avance del Feedback 360</h1>
+      <p>Cuántas notas y cuántos feedbacks privados ha dado cada persona. No se muestra a quién ni qué dicen.</p>
+      <div class="pills"><span class="pill">Registradas: <b>${regs}</b> de ${KEYS.length}</span><span class="pill">Notas en el tablero: <b>${S.notes.length}</b></span><span class="pill">Cumplieron el mínimo: <b>${minOk}</b> de ${KEYS.length}</span></div></div>
+    <div><button class="btn" data-act="go" data-v="home">Salir del seguimiento</button></div>
+    <div class="card tablewrap"><table><thead><tr><th>Persona</th><th>Estado</th><th>Personas con su nota</th><th>Feedback privado</th></tr></thead><tbody>${rows}</tbody></table></div>
+  </div>`;
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener("click", async e=>{
+  const b = e.target.closest("[data-act]"); if(!b) return;
+  const a = b.dataset.act;
+  if(a==="scrim"){ if(e.target===b){ S.fbFor=null; S.err=""; render(); } return; }
+  if(a==="go"){ S.view=b.dataset.v; S.thread=null; S.err=""; render(); window.scrollTo(0,0); }
+  else if(a==="logout") logout();
+  else if(a==="thread"){ S.thread = S.thread===b.dataset.f?null:b.dataset.f; render(); }
+  else if(a==="opennote"){ S.compose={to:b.dataset.k,text:"",color:randColor()}; render(); $("#noteText")?.focus({preventScroll:true}); }
+  else if(a==="closenote"){ S.compose={to:null,text:"",color:"yellow"}; render(); }
+  else if(a==="color"){ S.compose.color=b.dataset.c; render(); $("#noteText")?.focus({preventScroll:true}); }
+  else if(a==="openfb"){ S.fbFor=b.dataset.k; S.err=""; render(); }
+  else if(a==="closefb"){ S.fbFor=null; S.err=""; render(); }
+  else if(a==="vote"){ b.disabled=true; try{ await toggleVote(b.dataset.id); }catch(x){ toast("No se pudo registrar tu voto"); } }
+  else if(a==="delnote"){ try{ await deleteNote(b.dataset.id); toast("Nota borrada"); render(); }catch(x){ toast("No se pudo borrar la nota"); } }
+});
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && S.fbFor){ S.fbFor=null; render(); } });
+document.addEventListener("change", e=>{ if(e.target.id==="who"){ S.loginKey=e.target.value; S.err=""; render(); $("#pw")?.focus(); } });
+document.addEventListener("input", e=>{
+  if(e.target.id==="noteText") S.compose.text = e.target.value;
+  if(e.target.id==="q"){ S.q = e.target.value; render(); }
+  if(e.target.matches("[data-draft]")){ lset("rfp.draft3."+S.me+"."+S.fbFor, JSON.stringify(collect())); updateHints(); }
+});
+document.addEventListener("submit", async e=>{
+  e.preventDefault();
+  const f = e.target;
+  if(f.id==="loginForm"){
+    if(S.busy || !S.loginKey) return;
+    const k=S.loginKey, pw=$("#pw").value, pw2=$("#pw2")?.value;
+    S.busy=true; S.err=""; render();
+    try{ S.members[k] ? await login(k,pw) : await register(k,pw,pw2); }
+    catch(x){ S.err = typeof x==="string"?x:"No se pudo completar. Revisa tu conexión e intenta de nuevo."; }
+    S.busy=false; render();
+  }
+  else if(f.id==="noteForm"){
+    const text = S.compose.text.trim(), to = S.compose.to; if(text.length<3){ toast("Escribe tu nota primero"); return; }
+    try{ await addNote(to, text, S.compose.color); S.compose={to:null,text:"",color:"yellow"}; toast("Nota pegada para "+NAME[to]); render(); }
+    catch(x){ toast("No se pudo pegar la nota. Intenta de nuevo."); }
+  }
+  else if(f.dataset.kind){
+    const kind=f.dataset.kind, k=S.fbFor, ta=f.querySelector("textarea"), text=ta.value.trim();
+    if(text.length<20){ toast("Escribe al menos 20 caracteres"); return; }
+    if(S.busy) return; S.busy=true;
+    const dr = draft(k); dr["pt_"+kind]=""; lset("rfp.draft3."+S.me+"."+k, JSON.stringify(dr)); ta.value="";
+    try{ await submitFeedback(k, {[kind]:text}); toast("Post-it pegado para "+NAME[k]); render(); $("#pt_"+kind)?.focus({preventScroll:true}); }
+    catch(x){ toast(typeof x==="string"?x:"No se pudo enviar. Intenta de nuevo."); const t2=$("#pt_"+kind); if(t2){ t2.value=text; } dr["pt_"+kind]=text; lset("rfp.draft3."+S.me+"."+k, JSON.stringify(dr)); }
+    S.busy=false;
+  }
+  else if(f.dataset.thread){
+    const fid=f.dataset.thread, ta=f.querySelector("textarea"), text=ta.value.trim(); if(!text) return;
+    ta.value="";
+    try{ await sendMsg(fid,text); toast(keyFor(fid)?.role==="r"?"Invitación enviada":"Mensaje enviado"); }
+    catch(x){ toast("No se pudo enviar el mensaje"); const t2=document.getElementById("msg_"+fid); if(t2) t2.value=text; }
+  }
+});
+/* acceso oculto al seguimiento: cinco toques sobre el logo, o #seguimiento */
+let taps=0, tapT;
+$("#brand").addEventListener("click",()=>{ taps++; clearTimeout(tapT); tapT=setTimeout(()=>taps=0,1500);
+  if(taps>=5){ taps=0; if(isAdmin()){ S.view="admin"; render(); } } });
+function checkHash(){ if(location.hash==="#seguimiento" && isAdmin()){ S.view="admin"; render(); } }
+window.addEventListener("hashchange", checkHash);
+boot().then(checkHash);
+</script>
+</body>
+</html>
