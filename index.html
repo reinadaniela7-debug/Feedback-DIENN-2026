@@ -303,7 +303,7 @@ const S = { db:null, ready:false, failed:false,
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const rot = id => { let h=0; for(const c of String(id)) h=(h*31+c.charCodeAt(0))|0; return ((Math.abs(h)%5)-2)*0.9+"deg"; };
-const store = { get(k){try{return sessionStorage.getItem(k)}catch(e){return null}}, set(k,v){try{v==null?sessionStorage.removeItem(k):sessionStorage.setItem(k,v)}catch(e){}} };
+const store = { get(k){try{return localStorage.getItem(k) ?? sessionStorage.getItem(k)}catch(e){return null}}, set(k,v){try{sessionStorage.removeItem(k); v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}} };
 const lget = k => {try{return localStorage.getItem(k)}catch(e){return null}};
 const lset = (k,v) => {try{localStorage.setItem(k,v)}catch(e){}};
 function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
@@ -393,7 +393,7 @@ async function login(key, pw){
 }
 async function finishLogin(key, pkcs8){
   S.priv = await crypto.subtle.importKey("pkcs8", pkcs8, RSA, false, ["decrypt"]);
-  S.me = key; store.set("rf.me", key); store.set("rf.priv", b64(pkcs8));
+  S.me = key; store.set("rf.me", key); store.set("rf.priv", b64(pkcs8)); lset("rf.last", key);
   S.view = "home"; startMine(); render();
 }
 function logout(){
@@ -525,6 +525,7 @@ function render(){
 }
 
 function viewLogin(){
+  if(!S.loginInit){ S.loginInit=true; const l=lget("rf.last"); if(!S.loginKey && KEYS.includes(l)) S.loginKey=l; }
   const k = S.loginKey, taken = k && S.members[k];
   const opts = KEYS.map(x=>`<option value="${x}" ${x===k?"selected":""}>${esc(NAME[x])}${S.members[x]?"":" · nuevo"}</option>`).join("");
   return `<div class="login stack">
