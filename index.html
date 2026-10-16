@@ -83,6 +83,8 @@ nav.tabs button[aria-current="true"]{background:var(--accent);color:var(--accent
 
 /* carriles por persona */
 .lanes{display:flex;flex-direction:column;gap:16px;margin-top:22px}
+@media (min-width:900px){.lanes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.lanes>p{grid-column:1/-1}}
+.lane{min-width:0}
 .lane{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:14px 0 16px}
 .lane-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:0 16px 10px}
 .who{display:flex;align-items:center;gap:10px;min-width:0}
