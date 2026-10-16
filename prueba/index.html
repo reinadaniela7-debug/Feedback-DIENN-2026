@@ -94,8 +94,14 @@ nav.tabs button[aria-current="true"]{background:var(--accent);color:var(--accent
 .chip.ok{background:var(--ok-soft);color:var(--ok)}
 .lockbtn{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:.32rem .8rem;font-weight:700;font-size:.85rem}
 .lockbtn.done{color:var(--ok);background:var(--ok-soft);border-color:transparent}
-.strip{display:flex;gap:14px;overflow-x:auto;padding:8px 16px 10px;scroll-snap-type:x proximity;scrollbar-width:thin}
-.strip>*{scroll-snap-align:start;flex:none}
+.strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;padding:8px 16px 10px;align-items:stretch}
+.strip>.note{width:auto}
+@media (max-width:560px){.strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:6px 12px 10px}.strip>.note{min-height:120px;padding:11px 11px 8px;font-size:.98rem}}
+.strip>.composer.open{grid-column:1/-1}
+.lane.collapsed .strip{display:none}
+.lane.collapsed{padding-bottom:4px}
+.fold{border:0;background:var(--soft);color:var(--ink);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:1rem;flex:none;transition:transform .15s ease}
+.lane.collapsed .fold{transform:rotate(-90deg)}
 
 /* notas */
 .note{--c:var(--n-yellow);width:200px;min-height:150px;background:var(--c);color:var(--note-ink);padding:14px 14px 10px;border-radius:3px 3px 12px 3px;box-shadow:0 1px 1px rgba(0,0,0,.08),0 8px 16px rgba(0,0,0,.12);font-family:var(--hand);font-size:1.06rem;line-height:1.35;display:flex;flex-direction:column;gap:8px;font-weight:600;transition:transform .15s ease}
@@ -573,9 +579,10 @@ function viewHome(){
     .sort((a,b)=>done(a)-done(b) || NAME[a].localeCompare(NAME[b],"es"));
   const lane = k => {
     const ns = notesFor(k), sent = givenTo(k).length;
-    return `<section class="lane ${sent?"":"pending"}" aria-label="Notas para ${esc(NAME[k])}">
+    const col = lget("rfp.col."+k)==="1";
+    return `<section class="lane ${sent?"":"pending"} ${col?"collapsed":""}" aria-label="Notas para ${esc(NAME[k])}">
       <div class="lane-head">
-        <div class="who"><span class="av" style="--c:${avColor(k)}" aria-hidden="true">${esc(NAME[k][0])}</span>
+        <div class="who"><button class="fold" data-act="fold" data-k="${k}" aria-expanded="${!col}" aria-label="${col?"Mostrar":"Ocultar"} notas de ${esc(NAME[k])}">▾</button><span class="av" style="--c:${avColor(k)}" aria-hidden="true">${esc(NAME[k][0])}</span>
           <div><b>${esc(NAME[k])}</b><div class="count">${ns.length?`${ns.length} ${ns.length===1?"nota":"notas"}`:"Aún sin notas"}${withNote.has(k)?" · ✓ tu nota":""}</div></div></div>
         <div class="lane-actions">${sent?`<span class="chip ok">✓ Le diste feedback</span>`:`<span class="chip">Pendiente</span>`}
           <button class="fbbtn" data-act="openfb" data-k="${k}">🔒 ${sent?"Otro feedback privado":"Dar feedback privado"}${sent?`<span class="n">${sent}</span>`:""}</button></div>
@@ -714,6 +721,7 @@ document.addEventListener("click", async e=>{
   else if(a==="logout") logout();
   else if(a==="thread"){ S.thread = S.thread===b.dataset.f?null:b.dataset.f; render(); }
   else if(a==="opennote"){ S.compose={to:b.dataset.k,text:"",color:randColor()}; render(); $("#noteText")?.focus({preventScroll:true}); }
+  else if(a==="fold"){ const k=b.dataset.k; lset("rfp.col."+k, lget("rfp.col."+k)==="1"?"0":"1"); render(); }
   else if(a==="closenote"){ S.compose={to:null,text:"",color:"yellow"}; render(); }
   else if(a==="color"){ S.compose.color=b.dataset.c; render(); $("#noteText")?.focus({preventScroll:true}); }
   else if(a==="openfb"){ S.fbFor=b.dataset.k; S.err=""; render(); }
