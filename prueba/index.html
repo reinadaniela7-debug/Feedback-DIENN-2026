@@ -11,7 +11,7 @@
 :root{
   --bg:#F4F1FA; --dots:#D9D2EA; --surface:#FFFFFF; --ink:#1E1A33; --muted:#6A6483; --line:#E6E0F2;
   --accent:#6C4CF1; --accent-2:#FF7A59; --blue:#2563EB; --blue-ink:#FFFFFF; --accent-ink:#FFFFFF; --soft:#EEE9FD; --ok:#178A4C; --ok-soft:#DDF5E7; --warn:#A35F00; --danger:#C2271D;
-  --note-ink:#2A2418; --n-yellow:#FFE77A; --n-pink:#FFC2D6; --n-green:#BFF0C4; --n-blue:#BBE1FF; --n-violet:#D9C9FF; --n-peach:#FFD3B0;
+  --note-ink:#2A2418; --n-yellow:#FFE77A; --n-pink:#FFC2D6; --n-green:#BFF0C4; --n-blue:#BBE1FF; --n-violet:#D9C9FF; --n-peach:#FFD3B0; --n-rose:#FFD6E0; --n-lilac:#E6DAFF; --n-sky:#D3EBFF; --n-mint:#CDF3E1; --n-lemon:#FFF2B3;
   --shadow:0 1px 2px rgba(40,25,90,.06),0 10px 30px rgba(40,25,90,.08);
   --hero:linear-gradient(120deg,#6C4CF1 0%,#9B5CF6 55%,#FF7A59 120%);
   --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
@@ -108,7 +108,7 @@ nav.tabs button[aria-current="true"]{background:var(--accent);color:var(--accent
 .note:hover{transform:translateY(-2px)}
 .note p{white-space:pre-wrap;overflow-wrap:anywhere;flex:1}
 .note .foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--body);font-size:.8rem;gap:6px}
-.c-yellow{--c:var(--n-yellow)} .c-pink{--c:var(--n-pink)} .c-green{--c:var(--n-green)} .c-blue{--c:var(--n-blue)} .c-violet{--c:var(--n-violet)} .c-peach{--c:var(--n-peach)}
+.c-yellow{--c:var(--n-yellow)} .c-pink{--c:var(--n-pink)} .c-green{--c:var(--n-green)} .c-blue{--c:var(--n-blue)} .c-violet{--c:var(--n-violet)} .c-peach{--c:var(--n-peach)} .c-rose{--c:var(--n-rose)} .c-lilac{--c:var(--n-lilac)} .c-sky{--c:var(--n-sky)} .c-mint{--c:var(--n-mint)} .c-lemon{--c:var(--n-lemon)}
 .vote{border:0;background:rgba(255,255,255,.6);color:var(--note-ink);border-radius:999px;padding:.2rem .65rem;font-weight:700;display:inline-flex;gap:5px;align-items:center}
 .vote[aria-pressed="true"]{background:var(--note-ink);color:var(--c)}
 .vote:disabled{cursor:default;opacity:.85}
@@ -121,6 +121,9 @@ nav.tabs button[aria-current="true"]{background:var(--accent);color:var(--accent
 .swatches{display:flex;gap:4px}
 .sw{width:18px;height:18px;border-radius:50%;border:2px solid rgba(0,0,0,.15);background:var(--c);padding:0}
 .sw[aria-pressed="true"]{border-color:var(--note-ink)}
+.pform .swatches{gap:8px;align-items:center}
+.pform .sw{width:26px;height:26px;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.pform .sw[aria-pressed="true"]{border-width:3px;transform:scale(1.1)}
 .notebtn{border:0;background:var(--note-ink);color:var(--c);border-radius:999px;padding:.25rem .75rem;font-weight:700;font-family:var(--body);font-size:.82rem}
 .x{border:0;background:none;color:var(--note-ink);opacity:.65;font-size:.78rem;font-family:var(--body);padding:0;text-decoration:underline}
 .empty{font-size:.9rem;color:var(--muted);align-self:center;padding:0 6px}
@@ -606,18 +609,22 @@ function viewHome(){
 const KINDS = [
   {kind:"gift", tag:"🎁 Te regalo para crecer", color:"peach", ph:"El martes noté que interrumpiste antes de que terminaran. Te propongo anotar tu idea y compartirla al final."}];
 const FB_IDS = ["pt_gift"];
+const FB_COLORS = ["peach","rose","lilac","sky","mint","lemon"];
+const FB_NAMES = {peach:"durazno",rose:"rosado",lilac:"lila",sky:"celeste",mint:"menta",lemon:"amarillo"};
+const fbColor = () => { const c = lget("rfp.fbcolor"); return FB_COLORS.includes(c) ? c : "peach"; };
+const fbCol = d => FB_COLORS.includes(d?.color) ? d.color : null;
 const kindOf = d => d.gift && !d.rec ? "gift" : d.rec && !d.gift ? "rec" : "both";
 function viewSheet(k){
   const sent = givenTo(k), d = draft(k);
   const col = K => {
     const mine = sent.filter(g=>g.data && (g.data[K.kind]));
     return `<div class="pcol ${K.kind}"><span class="tag">${K.tag}</span>
-      <form class="note pform pnote c-${K.color}" data-kind="${K.kind}">
+      <form class="note pform pnote c-${fbColor()}" data-kind="${K.kind}">
         <textarea id="pt_${K.kind}" data-draft maxlength="600" placeholder="${esc(K.ph)}" aria-label="${esc(K.tag)}">${esc(d["pt_"+K.kind]||"")}</textarea>
         <span class="hint" id="pt_${K.kind}_h"></span>
-        <div class="foot"><span></span><button class="notebtn" type="submit">Pegar post-it</button></div>
+        <div class="foot"><div class="swatches" role="group" aria-label="Color del post-it">${FB_COLORS.map(c=>`<button type="button" class="sw c-${c}" data-act="fbcolor" data-c="${c}" aria-pressed="${fbColor()===c}" aria-label="Color ${FB_NAMES[c]}"></button>`).join("")}</div><button class="notebtn" type="submit">Pegar post-it</button></div>
       </form>
-      ${mine.length?`<div class="sentlist"><span class="eyebrow">Ya le pegaste ${mine.length}</span>${mine.map(g=>`<div class="note pnote c-${K.color}" style="--r:${rot(g.fid||g.data[K.kind])}"><p>${esc(g.data[K.kind])}</p>${g.pending?`<div class="foot"><span class="hint">Se entrega cuando entre</span></div>`:""}</div>`).join("")}</div>`:""}
+      ${mine.length?`<div class="sentlist"><span class="eyebrow">Ya le pegaste ${mine.length}</span>${mine.map(g=>`<div class="note pnote c-${fbCol(g.data)||K.color}" style="--r:${rot(g.fid||g.data[K.kind])}"><p>${esc(g.data[K.kind])}</p>${g.pending?`<div class="foot"><span class="hint">Se entrega cuando entre</span></div>`:""}</div>`).join("")}</div>`:""}
     </div>`;
   };
   return `<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true">
@@ -656,7 +663,7 @@ function viewMine(){
   const fbCard = (r,i) => {
     const gift = r.gift ?? [r.g_sit,r.g_obs,r.g_prop && "Te propone: "+r.g_prop].filter(Boolean).join(" ");
     const recT = r.rec ?? [r.r_sit,r.r_act,r.r_imp && "Eso logró que "+r.r_imp].filter(Boolean).join(" ");
-    const kc = kindOf({gift, rec:recT}), cc = kc==="gift"?"peach":kc==="rec"?"violet":"yellow";
+    const kc = kindOf({gift, rec:recT}), cc = fbCol(r) || (kc==="gift"?"peach":kc==="rec"?"violet":"yellow");
     return `<article class="note secret c-${cc}" style="--r:${rot(r.fid)}">
       <span class="lockbadge">🔒 Solo para ti</span>
       ${gift?`<div class="part"><b>🎁 Te regalan para crecer</b><p>${esc(gift)}</p></div>`:""}
@@ -723,6 +730,7 @@ document.addEventListener("click", async e=>{
   else if(a==="opennote"){ S.compose={to:b.dataset.k,text:"",color:randColor()}; render(); $("#noteText")?.focus({preventScroll:true}); }
   else if(a==="fold"){ const k=b.dataset.k; lset("rfp.col."+k, lget("rfp.col."+k)==="1"?"0":"1"); render(); }
   else if(a==="closenote"){ S.compose={to:null,text:"",color:"yellow"}; render(); }
+  else if(a==="fbcolor"){ lset("rfp.fbcolor", b.dataset.c); const f=$(".pform"); if(f){ FB_COLORS.forEach(c=>f.classList.remove("c-"+c)); f.classList.add("c-"+b.dataset.c); f.querySelectorAll("[data-act=fbcolor]").forEach(x=>x.setAttribute("aria-pressed", x.dataset.c===b.dataset.c)); } $("#pt_gift")?.focus({preventScroll:true}); }
   else if(a==="color"){ S.compose.color=b.dataset.c; render(); $("#noteText")?.focus({preventScroll:true}); }
   else if(a==="openfb"){ S.fbFor=b.dataset.k; S.err=""; render(); }
   else if(a==="closefb"){ S.fbFor=null; S.err=""; render(); }
@@ -757,7 +765,7 @@ document.addEventListener("submit", async e=>{
     if(text.length<20){ toast("Escribe al menos 20 caracteres"); return; }
     if(S.busy) return; S.busy=true;
     const dr = draft(k); dr["pt_"+kind]=""; lset("rfp.draft3."+S.me+"."+k, JSON.stringify(dr)); ta.value="";
-    try{ await submitFeedback(k, {[kind]:text}); toast("Post-it pegado para "+NAME[k]); render(); $("#pt_"+kind)?.focus({preventScroll:true}); }
+    try{ await submitFeedback(k, {[kind]:text, color:fbColor()}); toast("Post-it pegado para "+NAME[k]); render(); $("#pt_"+kind)?.focus({preventScroll:true}); }
     catch(x){ toast(typeof x==="string"?x:"No se pudo enviar. Intenta de nuevo."); const t2=$("#pt_"+kind); if(t2){ t2.value=text; } dr["pt_"+kind]=text; lset("rfp.draft3."+S.me+"."+k, JSON.stringify(dr)); }
     S.busy=false;
   }
