@@ -411,7 +411,7 @@ async function login(key, pw){
 async function finishLogin(key, pkcs8){
   S.priv = await crypto.subtle.importKey("pkcs8", pkcs8, RSA, false, ["decrypt"]);
   S.me = key; store.set("rf.me", key); store.set("rf.priv", b64(pkcs8)); lset("rf.last", key);
-  S.view = "home"; startMine(); render();
+  S.view = location.hash==="#buzon" ? "buzon" : "home"; startMine(); render();
 }
 function logout(){
   S.unsubs.forEach(u=>u()); S.unsubs=[];
@@ -764,7 +764,8 @@ document.addEventListener("click", async e=>{
   const b = e.target.closest("[data-act]"); if(!b) return;
   const a = b.dataset.act;
   if(a==="scrim"){ if(e.target===b){ S.fbFor=null; S.err=""; render(); } return; }
-  if(a==="go"){ S.view=b.dataset.v; S.thread=null; S.err=""; render(); window.scrollTo(0,0); }
+  if(a==="go"){ if(location.hash && b.dataset.v!=="buzon") try{ history.replaceState(null,"",location.pathname+location.search); }catch(x){}
+    S.view=b.dataset.v; S.thread=null; S.err=""; render(); window.scrollTo(0,0); }
   else if(a==="logout") logout();
   else if(a==="thread"){ S.thread = S.thread===b.dataset.f?null:b.dataset.f; render(); }
   else if(a==="opennote"){ S.compose={to:b.dataset.k,text:"",color:randColor()}; render(); $("#noteText")?.focus({preventScroll:true}); }
@@ -827,7 +828,7 @@ document.addEventListener("submit", async e=>{
 let taps=0, tapT;
 $("#brand").addEventListener("click",()=>{ taps++; clearTimeout(tapT); tapT=setTimeout(()=>taps=0,1500);
   if(taps>=5){ taps=0; if(isAdmin()){ S.view="admin"; render(); } } });
-function checkHash(){ if(location.hash==="#seguimiento" && isAdmin()){ S.view="admin"; render(); } }
+function checkHash(){ if(location.hash==="#seguimiento" && isAdmin()){ S.view="admin"; render(); } else if(location.hash==="#buzon"){ S.view="buzon"; render(); } }
 window.addEventListener("hashchange", checkHash);
 boot().then(checkHash);
 </script>

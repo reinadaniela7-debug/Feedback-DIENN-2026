@@ -2,114 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Sugiere un tema · Feedback 360 DIENN 2026</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Nunito:wght@600;700&display=swap">
-<style>
-:root{
-  --bg:#F4F1FA; --dots:#D9D2EA; --surface:#FFFFFF; --ink:#1E1A33; --muted:#6A6483; --line:#E6E0F2;
-  --accent:#6C4CF1; --accent-ink:#FFFFFF; --note-ink:#2A2418;
-  --hero:linear-gradient(120deg,#6C4CF1 0%,#9B5CF6 55%,#FF7A59 120%);
-  --shadow:0 1px 2px rgba(40,25,90,.06),0 10px 30px rgba(40,25,90,.08);
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#15121F; --dots:#2A2540; --surface:#1F1B2E; --ink:#F1EEFA; --muted:#A9A3C2; --line:#332D49;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
-}}
-*{box-sizing:border-box}
-body{margin:0;background-color:var(--bg);background-image:radial-gradient(var(--dots) 1.2px,transparent 1.4px);background-size:24px 24px;color:var(--ink);font:15px/1.55 "Figtree","Segoe UI",system-ui,sans-serif}
-.wrap{max-width:720px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right)) 64px max(16px,env(safe-area-inset-left))}
-.hero{background:var(--hero);color:#fff;border-radius:24px;padding:26px 24px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
-.hero h1{font-family:"Bricolage Grotesque","Segoe UI",sans-serif;font-size:clamp(1.7rem,6vw,2.4rem);line-height:1.1;margin:0}
-.eyebrow{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.85)}
-.hero p{margin:0;font-size:1.02rem}
-form{margin-top:18px;background:#FFE7F0;color:var(--note-ink);border-radius:3px 3px 14px 3px;padding:18px;box-shadow:0 1px 1px rgba(0,0,0,.08),0 8px 16px rgba(0,0,0,.12);display:flex;flex-direction:column;gap:12px}
-label{font-weight:700}
-textarea{width:100%;min-height:110px;border:0;background:transparent;font:600 16px/1.4 "Nunito","Figtree",sans-serif;color:var(--note-ink);resize:vertical}
-textarea:focus-visible{outline:2px solid rgba(42,36,24,.35);outline-offset:4px;border-radius:6px}
-.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-button{border:0;background:var(--note-ink);color:#FFE7F0;border-radius:999px;padding:.6rem 1.2rem;font:700 .95rem "Figtree",sans-serif;cursor:pointer}
-button:disabled{opacity:.5;cursor:default}
-.hint{font-size:.85rem;opacity:.75}
-h2{font-family:"Bricolage Grotesque","Segoe UI",sans-serif;font-size:1.2rem;margin:28px 0 10px}
-.sent{margin-top:18px;background:var(--surface);border-radius:18px;padding:18px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:center}
-.sent p{margin:0}
-.big{font-size:2rem}
-.ideas{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-.idea{position:relative;display:flex;flex-direction:column;gap:10px;justify-content:space-between;border-radius:3px 3px 12px 3px;padding:12px 14px;color:var(--note-ink);font:600 1rem/1.35 "Nunito","Figtree",sans-serif;box-shadow:0 1px 1px rgba(0,0,0,.08),0 6px 12px rgba(0,0,0,.1);overflow-wrap:anywhere}
-.vote{align-self:flex-start;border:0;background:rgba(255,255,255,.65);color:var(--note-ink);border-radius:999px;padding:.25rem .75rem;font:700 .9rem "Figtree",sans-serif;cursor:pointer}
-.vote[aria-pressed="true"]{background:var(--note-ink);color:#fff}
-.rank{position:absolute;top:-10px;right:10px;background:var(--accent);color:#fff;font:800 .75rem "Figtree",sans-serif;padding:.15rem .5rem;border-radius:999px}
-.muted{color:var(--muted)}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.6rem 1rem;border-radius:999px;font-weight:600;box-shadow:var(--shadow)}
-</style>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buzón de sugerencias · Feedback 360 DIENN 2026</title>
+<meta http-equiv="refresh" content="0; url=../#buzon">
+<script>location.replace("../#buzon");</script>
 </head>
-<body>
-<div class="wrap">
-  <div class="hero">
-    <span class="eyebrow">Feedback 360 DIENN 2026 · Cápsulas</span>
-    <h1>¿Sobre qué te gustaría aprender?</h1>
-    <p>Cuéntanos qué temas quieres que toquemos en las cápsulas que acompañan este proceso de feedback. Es anónimo. Vota por las ideas que más te gustan: las más votadas suben.</p>
-  </div>
-  <form id="f">
-    <label for="t">Tu tema o pregunta</label>
-    <textarea id="t" maxlength="300" placeholder="Ej.: ¿Cómo recibo feedback sin ponerme a la defensiva?" required></textarea>
-    <div class="row"><span class="hint" id="h">Puedes enviar todos los temas que quieras.</span><button id="b" type="submit">Enviar tema</button></div>
-  </form>
-  <h2>Sugerencias del equipo</h2>
-  <div class="ideas" id="list"><p class="muted">Cargando…</p></div>
-</div>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDAiQwdseqZnxh0QuHkrpBrKyli0FIFMi4",
-  authDomain: "feedback-dienn-2026.firebaseapp.com",
-  projectId: "feedback-dienn-2026",
-  storageBucket: "feedback-dienn-2026.firebasestorage.app",
-  messagingSenderId: "181202884761",
-  appId: "1:181202884761:web:1b45ed5eafb8c7d3134008"
-};
-const COLORS = ["#FFD3B0","#FFD6E0","#E6DAFF","#D3EBFF","#CDF3E1","#FFF2B3"];
-const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const $ = s => document.querySelector(s);
-function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
-/* identificador anónimo de este dispositivo, para que cada quien vote una sola vez por idea */
-let me; try{ me = localStorage.getItem("temas.voter"); if(!me){ me = "d-"+Math.random().toString(36).slice(2,12); localStorage.setItem("temas.voter", me); } }catch(e){ me = "d-"+Math.random().toString(36).slice(2,12); }
-let db, items = [];
-function draw(){
-  const list = items.slice().sort((a,b)=>(b.votes||[]).length-(a.votes||[]).length || (b.at||0)-(a.at||0));
-  $("#list").innerHTML = list.length
-    ? list.map((d,i)=>{ const v=d.votes||[], on=v.includes(me);
-        return `<div class="idea" style="background:${COLORS[i%COLORS.length]}">${i<3&&v.length?`<span class="rank">#${i+1}</span>`:""}<span>${esc(d.text)}</span><button class="vote" data-id="${esc(d.id)}" aria-pressed="${on}" aria-label="${on?"Quitar mi voto":"Votar"}, ${v.length} votos">▲ ${v.length}</button></div>`; }).join("")
-    : `<p class="muted">Todavía no hay sugerencias. ¡Sé la primera persona en proponer una!</p>`;
-}
-try{
-  firebase.initializeApp(firebaseConfig);
-  db = firebase.firestore();
-  db.collection("temas").onSnapshot(snap=>{
-    items = snap.docs.map(d=>({id:d.id, ...d.data()})).filter(d=>typeof d.text==="string"); draw();
-  }, ()=>{ $("#list").innerHTML = `<p class="muted">No pudimos cargar las sugerencias. Recarga la página.</p>`; });
-}catch(e){ $("#list").innerHTML = `<p class="muted">No pudimos conectar. Revisa tu internet y recarga.</p>`; }
-$("#list").addEventListener("click", async e=>{
-  const b = e.target.closest(".vote"); if(!b) return;
-  b.disabled = true;
-  try{
-    const ref = db.collection("temas").doc(b.dataset.id), snap = await ref.get(); if(!snap.exists) return;
-    const v = new Set(snap.data().votes||[]); v.has(me) ? v.delete(me) : v.add(me);
-    await ref.update({votes:[...v]});
-  }catch(x){ toast("No se pudo registrar tu voto"); b.disabled=false; }
-});
-$("#f").addEventListener("submit", async e=>{
-  e.preventDefault();
-  const ta=$("#t"), text=ta.value.trim();
-  if(text.length<3){ toast("Escribe un poco más"); return; }
-  $("#b").disabled=true;
-  try{ await db.collection("temas").add({text, at: Date.now(), votes: []}); ta.value=""; toast("¡Gracias! Sugerencia agregada"); }
-  catch(x){ toast("No se pudo enviar. Intenta de nuevo."); }
-  $("#b").disabled=false;
-});
-</script>
+<body style="font-family:system-ui,sans-serif;background:#F4F1FA;color:#1E1A33;padding:24px">
+<p>Te estamos llevando al buzón de sugerencias… Si no pasa nada, <a href="../#buzon">toca aquí</a>.</p>
 </body>
 </html>
