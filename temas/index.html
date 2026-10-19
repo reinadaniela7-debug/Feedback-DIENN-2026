@@ -37,7 +37,10 @@ h2{font-family:"Bricolage Grotesque","Segoe UI",sans-serif;font-size:1.2rem;marg
 .sent p{margin:0}
 .big{font-size:2rem}
 .ideas{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-.idea{border-radius:3px 3px 12px 3px;padding:12px 14px;color:var(--note-ink);font:600 1rem/1.35 "Nunito","Figtree",sans-serif;box-shadow:0 1px 1px rgba(0,0,0,.08),0 6px 12px rgba(0,0,0,.1);overflow-wrap:anywhere}
+.idea{position:relative;display:flex;flex-direction:column;gap:10px;justify-content:space-between;border-radius:3px 3px 12px 3px;padding:12px 14px;color:var(--note-ink);font:600 1rem/1.35 "Nunito","Figtree",sans-serif;box-shadow:0 1px 1px rgba(0,0,0,.08),0 6px 12px rgba(0,0,0,.1);overflow-wrap:anywhere}
+.vote{align-self:flex-start;border:0;background:rgba(255,255,255,.65);color:var(--note-ink);border-radius:999px;padding:.25rem .75rem;font:700 .9rem "Figtree",sans-serif;cursor:pointer}
+.vote[aria-pressed="true"]{background:var(--note-ink);color:#fff}
+.rank{position:absolute;top:-10px;right:10px;background:var(--accent);color:#fff;font:800 .75rem "Figtree",sans-serif;padding:.15rem .5rem;border-radius:999px}
 .muted{color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.6rem 1rem;border-radius:999px;font-weight:600;box-shadow:var(--shadow)}
 </style>
@@ -47,14 +50,15 @@ h2{font-family:"Bricolage Grotesque","Segoe UI",sans-serif;font-size:1.2rem;marg
   <div class="hero">
     <span class="eyebrow">Feedback 360 DIENN 2026 · Cápsulas</span>
     <h1>¿Sobre qué te gustaría aprender?</h1>
-    <p>Cuéntanos qué temas quieres que toquemos en las cápsulas que acompañan este proceso de feedback. Es anónimo y solo lo lee el equipo de cultura.</p>
+    <p>Cuéntanos qué temas quieres que toquemos en las cápsulas que acompañan este proceso de feedback. Es anónimo. Vota por las ideas que más te gustan: las más votadas suben.</p>
   </div>
   <form id="f">
     <label for="t">Tu tema o pregunta</label>
     <textarea id="t" maxlength="300" placeholder="Ej.: ¿Cómo recibo feedback sin ponerme a la defensiva?" required></textarea>
     <div class="row"><span class="hint" id="h">Puedes enviar todos los temas que quieras.</span><button id="b" type="submit">Enviar tema</button></div>
   </form>
-  <div class="sent" id="sent" hidden><span class="big">💌</span><p><b>¡Gracias! Tu sugerencia llegó al buzón.</b><br>Puedes enviar otra cuando quieras.</p></div>
+  <h2>Sugerencias del equipo</h2>
+  <div class="ideas" id="list"><p class="muted">Cargando…</p></div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -67,37 +71,43 @@ const firebaseConfig = {
   messagingSenderId: "181202884761",
   appId: "1:181202884761:web:1b45ed5eafb8c7d3134008"
 };
-const ADMIN = "daniela";
-const RSA = {name:"RSA-OAEP", hash:"SHA-256"};
-const enc = new TextEncoder();
-const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const COLORS = ["#FFD3B0","#FFD6E0","#E6DAFF","#D3EBFF","#CDF3E1","#FFF2B3"];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const $ = s => document.querySelector(s);
 function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
-/* cifra la sugerencia con la clave pública de la administradora: nadie más puede leerla */
-async function seal(pubJwk, obj){
-  const rawKey = crypto.getRandomValues(new Uint8Array(32)), iv = crypto.getRandomValues(new Uint8Array(12));
-  const pub = await crypto.subtle.importKey("jwk", pubJwk, RSA, false, ["encrypt"]);
-  const k = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["encrypt"]);
-  return {ek:b64(await crypto.subtle.encrypt({name:"RSA-OAEP"}, pub, rawKey)), iv:b64(iv),
-          ct:b64(await crypto.subtle.encrypt({name:"AES-GCM", iv}, k, enc.encode(JSON.stringify(obj))))};
+/* identificador anónimo de este dispositivo, para que cada quien vote una sola vez por idea */
+let me; try{ me = localStorage.getItem("temas.voter"); if(!me){ me = "d-"+Math.random().toString(36).slice(2,12); localStorage.setItem("temas.voter", me); } }catch(e){ me = "d-"+Math.random().toString(36).slice(2,12); }
+let db, items = [];
+function draw(){
+  const list = items.slice().sort((a,b)=>(b.votes||[]).length-(a.votes||[]).length || (b.at||0)-(a.at||0));
+  $("#list").innerHTML = list.length
+    ? list.map((d,i)=>{ const v=d.votes||[], on=v.includes(me);
+        return `<div class="idea" style="background:${COLORS[i%COLORS.length]}">${i<3&&v.length?`<span class="rank">#${i+1}</span>`:""}<span>${esc(d.text)}</span><button class="vote" data-id="${esc(d.id)}" aria-pressed="${on}" aria-label="${on?"Quitar mi voto":"Votar"}, ${v.length} votos">▲ ${v.length}</button></div>`; }).join("")
+    : `<p class="muted">Todavía no hay sugerencias. ¡Sé la primera persona en proponer una!</p>`;
 }
-let db, pubKey = null;
 try{
   firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
-  db.doc("members/"+ADMIN).get().then(d=>{ pubKey = d.exists ? d.data().pub : null; }).catch(()=>{});
-}catch(e){ toast("No pudimos conectar. Revisa tu internet y recarga."); }
+  db.collection("temas").onSnapshot(snap=>{
+    items = snap.docs.map(d=>({id:d.id, ...d.data()})).filter(d=>typeof d.text==="string"); draw();
+  }, ()=>{ $("#list").innerHTML = `<p class="muted">No pudimos cargar las sugerencias. Recarga la página.</p>`; });
+}catch(e){ $("#list").innerHTML = `<p class="muted">No pudimos conectar. Revisa tu internet y recarga.</p>`; }
+$("#list").addEventListener("click", async e=>{
+  const b = e.target.closest(".vote"); if(!b) return;
+  b.disabled = true;
+  try{
+    const ref = db.collection("temas").doc(b.dataset.id), snap = await ref.get(); if(!snap.exists) return;
+    const v = new Set(snap.data().votes||[]); v.has(me) ? v.delete(me) : v.add(me);
+    await ref.update({votes:[...v]});
+  }catch(x){ toast("No se pudo registrar tu voto"); b.disabled=false; }
+});
 $("#f").addEventListener("submit", async e=>{
   e.preventDefault();
   const ta=$("#t"), text=ta.value.trim();
   if(text.length<3){ toast("Escribe un poco más"); return; }
   $("#b").disabled=true;
-  try{
-    if(!pubKey){ const d = await db.doc("members/"+ADMIN).get(); pubKey = d.exists ? d.data().pub : null; }
-    if(!pubKey) throw 0;
-    await db.collection("temas").add({...(await seal(pubKey, {text})), at: Date.now()});
-    ta.value=""; $("#sent").hidden=false; toast("¡Gracias! Sugerencia enviada");
-  }catch(x){ toast("No se pudo enviar. Intenta de nuevo."); }
+  try{ await db.collection("temas").add({text, at: Date.now(), votes: []}); ta.value=""; toast("¡Gracias! Sugerencia agregada"); }
+  catch(x){ toast("No se pudo enviar. Intenta de nuevo."); }
   $("#b").disabled=false;
 });
 </script>

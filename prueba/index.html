@@ -264,8 +264,10 @@ th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mu
 footer{margin-top:36px;text-align:center;font-size:.8rem;color:var(--muted)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.note{transform:none}}
 .bzgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
-.bznote{width:auto;min-height:110px}
-.hero a.pill{color:inherit;text-decoration:none}
+.bznote{width:auto;min-height:110px;position:relative}
+.bzrank{position:absolute;top:-10px;right:10px;background:var(--accent);color:var(--accent-ink);font:800 .78rem var(--body);padding:.15rem .5rem;border-radius:999px}
+.bzform{display:flex;flex-direction:column;gap:10px}
+.bzform textarea{min-height:90px}
 </style>
 </head>
 <body>
@@ -314,7 +316,7 @@ const S = { db:null, ready:false, failed:false,
   given:{}, myNotes:[], received:[], rawThreads:{}, threads:{},
   view:"home", thread:null, busy:false, err:"", loginKey:"",
   compose:{to:null, text:"", color:"yellow"}, fbFor:null, q:"", unsubs:[],
-  temasRaw:[], temas:null, temasCache:{}, temasErr:false };
+  temas:null, temasErr:false };
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -414,7 +416,7 @@ async function finishLogin(key, pkcs8){
 }
 function logout(){
   S.unsubs.forEach(u=>u()); S.unsubs=[];
-  Object.assign(S,{me:null,priv:null,temasRaw:[],temas:null,temasCache:{},temasErr:false,given:{},myNotes:[],received:[],rawThreads:{},threads:{},view:"home",thread:null,fbFor:null});
+  Object.assign(S,{me:null,priv:null,temas:null,temasErr:false,given:{},myNotes:[],received:[],rawThreads:{},threads:{},view:"home",thread:null,fbFor:null});
   store.set("rfp.me",null); store.set("rfp.priv",null); render();
 }
 
@@ -434,21 +436,21 @@ function startMine(){
   S.unsubs.push(db.collection("prueba_threads").onSnapshot(async snap=>{
     const r = {}; snap.docs.forEach(d=>r[d.id]=d.data()); S.rawThreads = r; await processThreads(); render();
   }, ()=>{}));
-  if(isAdmin()) S.unsubs.push(db.collection("prueba_temas").onSnapshot(snap=>{
-    S.temasErr = false; S.temasRaw = snap.docs.map(d=>({id:d.id, ...d.data()})); openTemas();
+  S.unsubs.push(db.collection("prueba_temas").onSnapshot(snap=>{
+    S.temasErr = false;
+    S.temas = snap.docs.map(d=>({id:d.id, ...d.data()})).filter(t=>typeof t.text==="string");
+    render();
   }, ()=>{ S.temasErr = true; S.temas = []; if(S.view==="buzon") render(); }));
 }
-/* buzón de sugerencias: cada tema llega cifrado con la clave pública de la administradora */
-async function openTemas(){
-  const out = [];
-  for(const t of S.temasRaw){
-    if(!S.temasCache[t.id]){
-      try{ const {obj} = await unseal(t); S.temasCache[t.id] = {id:t.id, text:String(obj.text||""), at:t.at||0}; }
-      catch(e){ S.temasCache[t.id] = {id:t.id, bad:true, at:t.at||0}; }
-    }
-    out.push(S.temasCache[t.id]);
-  }
-  S.temas = out.sort((a,b)=>b.at-a.at); if(S.view==="buzon") render();
+/* buzón de sugerencias para las cápsulas: abierto al equipo, con votos */
+async function addTema(text){
+  await S.db.doc("prueba_temas/"+newId()).set({text, at:Date.now(), votes:[]});
+}
+async function toggleTemaVote(id){
+  const ref = S.db.doc("prueba_temas/"+id), snap = await ref.get(); if(!snap.exists) return;
+  const v = new Set(snap.data().votes||[]);
+  v.has(S.me) ? v.delete(S.me) : v.add(S.me);
+  await ref.update({votes:[...v]});
 }
 const normGiven = l => Object.fromEntries(Object.entries(l||{}).map(([k,v])=>[k, Array.isArray(v)?v:[v]]));
 const givenTo = k => S.given[k] || [];
@@ -543,9 +545,9 @@ function render(){
     tabs.hidden = false;
     tabs.innerHTML = `<button data-act="go" data-v="home" aria-current="${S.view==="home"}">Equipo</button>
       <button data-act="go" data-v="mine" aria-current="${S.view==="mine"}">Mi tablero${n?`<span class="dot">${n}</span>`:""}</button>
-      ${isAdmin()?`<button data-act="go" data-v="buzon" aria-current="${S.view==="buzon"}">Buzón${S.temas&&S.temas.length?`<span class="dot">${S.temas.length}</span>`:""}</button>`:""}
+      <button data-act="go" data-v="buzon" aria-current="${S.view==="buzon"}">Buzón</button>
       <button data-act="logout">Salir</button>`;
-    app.innerHTML = S.view==="mine" ? viewMine() : S.view==="buzon" && isAdmin() ? viewBuzon() : viewHome();
+    app.innerHTML = S.view==="mine" ? viewMine() : S.view==="buzon" ? viewBuzon() : viewHome();
   }
   $("#sheet").innerHTML = S.me && S.fbFor ? viewSheet(S.fbFor) : "";
   document.documentElement.classList.toggle("lock", !!(S.me && S.fbFor));
@@ -724,21 +726,21 @@ function viewThread(fid){
     </form></div>`;
 }
 
-const TEMAS_URL = "https://reinadaniela7-debug.github.io/Feedback-DIENN-2026/temas/";
 const BZ_COLORS = ["peach","rose","lilac","sky","mint","lemon"];
 function viewBuzon(){
-  const list = S.temas, ok = (list||[]).filter(t=>!t.bad);
-  const fmt = at => at ? new Date(at).toLocaleDateString("es",{day:"numeric",month:"short"}) : "";
-  const body = list===null ? `<p class="muted">Cargando sugerencias…</p>`
-    : S.temasErr ? `<p class="muted">Todavía no se puede leer el buzón. Revisa que las reglas de Firebase incluyan el bloque <b>temas</b>.</p>`
-    : !ok.length ? `<p class="muted">Aún no hay sugerencias. Cuando alguien escanee el QR y envíe un tema, aparecerá aquí.</p>`
-    : `<div class="bzgrid">${ok.map((t,i)=>`<div class="note bznote c-${BZ_COLORS[i%BZ_COLORS.length]}"><p>${esc(t.text)}</p><div class="foot"><span class="hint">${esc(fmt(t.at))}</span></div></div>`).join("")}</div>`;
-  const bad = (list||[]).length - ok.length;
+  const list = (S.temas||[]).slice().sort((a,b)=>(b.votes||[]).length-(a.votes||[]).length || (b.at||0)-(a.at||0));
+  const body = S.temas===null ? `<p class="muted">Cargando sugerencias…</p>`
+    : S.temasErr ? `<p class="muted">No pudimos cargar el buzón. Recarga la página.</p>`
+    : !list.length ? `<p class="muted">Aún no hay sugerencias. ¡Escribe la primera!</p>`
+    : `<div class="bzgrid">${list.map((t,i)=>{ const v=t.votes||[], on=v.includes(S.me);
+        return `<div class="note bznote c-${BZ_COLORS[i%BZ_COLORS.length]}">${i<3&&v.length?`<span class="bzrank">#${i+1}</span>`:""}<p>${esc(t.text)}</p><div class="foot"><button class="vote" data-act="bzvote" data-id="${esc(t.id)}" aria-pressed="${on}" aria-label="${on?"Quitar mi voto":"Votar por esta sugerencia"}, ${v.length} votos">▲ ${v.length}</button></div></div>`; }).join("")}</div>`;
   return `<div class="stack" style="gap:18px">
-    <div class="hero"><span class="eyebrow">Solo tú puedes ver esto</span><h1>📮 Buzón de sugerencias</h1>
-      <p>Temas que el equipo propone para las cápsulas. Llegan anónimos y cifrados: solo se pueden leer con tu sesión.</p>
-      <div class="pills"><span class="pill">Sugerencias: <b>${ok.length}</b></span><a class="pill" href="${TEMAS_URL}" target="_blank" rel="noopener">Abrir la página del QR ↗</a></div></div>
-    <div class="card">${body}${bad?`<p class="muted" style="margin-top:12px">${bad} sugerencia${bad>1?"s":""} no se pudo leer.</p>`:""}</div>
+    <div class="hero"><span class="eyebrow">Cápsulas · equipo de cultura</span><h1>📮 Buzón de sugerencias</h1>
+      <p>¿Sobre qué te gustaría aprender? Propón temas para las cápsulas y vota por los que más te interesan. Los más votados suben y son los primeros que preparamos.</p></div>
+    <form class="card bzform" id="bzForm"><label for="bzText"><b>Tu sugerencia</b></label>
+      <textarea id="bzText" maxlength="300" placeholder="Ej.: ¿Cómo recibo feedback sin ponerme a la defensiva?"></textarea>
+      <div class="row" style="justify-content:space-between"><span class="hint">Es anónima: no se muestra quién la escribió.</span><button class="btn primary" type="submit">Enviar</button></div></form>
+    <div class="card">${body}</div>
   </div>`;
 }
 function viewAdmin(){
@@ -773,6 +775,7 @@ document.addEventListener("click", async e=>{
   else if(a==="color"){ S.compose.color=b.dataset.c; render(); $("#noteText")?.focus({preventScroll:true}); }
   else if(a==="openfb"){ S.fbFor=b.dataset.k; S.err=""; render(); }
   else if(a==="closefb"){ S.fbFor=null; S.err=""; render(); }
+  else if(a==="bzvote"){ b.disabled=true; try{ await toggleTemaVote(b.dataset.id); }catch(x){ toast("No se pudo registrar tu voto"); b.disabled=false; } }
   else if(a==="vote"){ b.disabled=true; try{ await toggleVote(b.dataset.id); }catch(x){ toast("No se pudo registrar tu voto"); } }
   else if(a==="delnote"){ try{ await deleteNote(b.dataset.id); toast("Nota borrada"); render(); }catch(x){ toast("No se pudo borrar la nota"); } }
 });
@@ -793,6 +796,12 @@ document.addEventListener("submit", async e=>{
     try{ S.members[k] ? await login(k,pw) : await register(k,pw,pw2); }
     catch(x){ S.err = typeof x==="string"?x:"No se pudo completar. Revisa tu conexión e intenta de nuevo."; }
     S.busy=false; render();
+  }
+  else if(f.id==="bzForm"){
+    const ta=$("#bzText"), text=ta.value.trim(); if(text.length<3){ toast("Escribe tu sugerencia primero"); return; }
+    ta.value="";
+    try{ await addTema(text); toast("¡Gracias! Sugerencia agregada"); }
+    catch(x){ ta.value=text; toast("No se pudo enviar. Intenta de nuevo."); }
   }
   else if(f.id==="noteForm"){
     const text = S.compose.text.trim(), to = S.compose.to; if(text.length<3){ toast("Escribe tu nota primero"); return; }
