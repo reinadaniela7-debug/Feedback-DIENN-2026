@@ -248,6 +248,8 @@ th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mu
   .tablewrap td[data-l]::before{content:attr(data-l) ":";color:var(--muted);font-size:.82rem}
 }
 @media (max-width:700px){input,select,textarea{font-size:16px!important}}
+@media (max-width:480px){nav.tabs:has(> :nth-child(4)){flex-wrap:nowrap}nav.tabs:has(> :nth-child(4)) button{padding:.4rem .55rem;font-size:.86rem;white-space:nowrap}}
+@media (max-width:400px){nav.tabs:has(> :nth-child(4)) button{padding:.38rem .42rem;font-size:.8rem}nav.tabs:has(> :nth-child(4)) .dot{margin-left:3px;min-width:1rem;padding:0 .25rem}}
 @media (max-width:400px){nav.tabs{flex-wrap:nowrap}nav.tabs button{padding:.4rem .6rem;font-size:.88rem;white-space:nowrap}header.top{gap:8px;padding-inline:10px}}
 @media (max-width:480px){
   .hero{padding:20px 18px;border-radius:20px}
@@ -261,6 +263,9 @@ th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mu
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom, 0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;font-size:.9rem;z-index:30}
 footer{margin-top:36px;text-align:center;font-size:.8rem;color:var(--muted)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.note{transform:none}}
+.bzgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.bznote{width:auto;min-height:110px}
+.hero a.pill{color:inherit;text-decoration:none}
 </style>
 </head>
 <body>
@@ -308,7 +313,8 @@ const S = { db:null, ready:false, failed:false,
   members:{}, stats:{}, notes:[], me:null, priv:null,
   given:{}, myNotes:[], received:[], rawThreads:{}, threads:{},
   view:"home", thread:null, busy:false, err:"", loginKey:"",
-  compose:{to:null, text:"", color:"yellow"}, fbFor:null, q:"", unsubs:[] };
+  compose:{to:null, text:"", color:"yellow"}, fbFor:null, q:"", unsubs:[],
+  temasRaw:[], temas:null, temasCache:{}, temasErr:false };
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -408,7 +414,7 @@ async function finishLogin(key, pkcs8){
 }
 function logout(){
   S.unsubs.forEach(u=>u()); S.unsubs=[];
-  Object.assign(S,{me:null,priv:null,given:{},myNotes:[],received:[],rawThreads:{},threads:{},view:"home",thread:null,fbFor:null});
+  Object.assign(S,{me:null,priv:null,temasRaw:[],temas:null,temasCache:{},temasErr:false,given:{},myNotes:[],received:[],rawThreads:{},threads:{},view:"home",thread:null,fbFor:null});
   store.set("rfp.me",null); store.set("rfp.priv",null); render();
 }
 
@@ -428,6 +434,21 @@ function startMine(){
   S.unsubs.push(db.collection("prueba_threads").onSnapshot(async snap=>{
     const r = {}; snap.docs.forEach(d=>r[d.id]=d.data()); S.rawThreads = r; await processThreads(); render();
   }, ()=>{}));
+  if(isAdmin()) S.unsubs.push(db.collection("prueba_temas").onSnapshot(snap=>{
+    S.temasErr = false; S.temasRaw = snap.docs.map(d=>({id:d.id, ...d.data()})); openTemas();
+  }, ()=>{ S.temasErr = true; S.temas = []; if(S.view==="buzon") render(); }));
+}
+/* buzón de sugerencias: cada tema llega cifrado con la clave pública de la administradora */
+async function openTemas(){
+  const out = [];
+  for(const t of S.temasRaw){
+    if(!S.temasCache[t.id]){
+      try{ const {obj} = await unseal(t); S.temasCache[t.id] = {id:t.id, text:String(obj.text||""), at:t.at||0}; }
+      catch(e){ S.temasCache[t.id] = {id:t.id, bad:true, at:t.at||0}; }
+    }
+    out.push(S.temasCache[t.id]);
+  }
+  S.temas = out.sort((a,b)=>b.at-a.at); if(S.view==="buzon") render();
 }
 const normGiven = l => Object.fromEntries(Object.entries(l||{}).map(([k,v])=>[k, Array.isArray(v)?v:[v]]));
 const givenTo = k => S.given[k] || [];
@@ -520,10 +541,11 @@ function render(){
   else{
     const n = 0;
     tabs.hidden = false;
-    tabs.innerHTML = `<button data-act="go" data-v="home" aria-current="${S.view!=="mine"}">Equipo</button>
+    tabs.innerHTML = `<button data-act="go" data-v="home" aria-current="${S.view==="home"}">Equipo</button>
       <button data-act="go" data-v="mine" aria-current="${S.view==="mine"}">Mi tablero${n?`<span class="dot">${n}</span>`:""}</button>
+      ${isAdmin()?`<button data-act="go" data-v="buzon" aria-current="${S.view==="buzon"}">Buzón${S.temas&&S.temas.length?`<span class="dot">${S.temas.length}</span>`:""}</button>`:""}
       <button data-act="logout">Salir</button>`;
-    app.innerHTML = S.view==="mine" ? viewMine() : viewHome();
+    app.innerHTML = S.view==="mine" ? viewMine() : S.view==="buzon" && isAdmin() ? viewBuzon() : viewHome();
   }
   $("#sheet").innerHTML = S.me && S.fbFor ? viewSheet(S.fbFor) : "";
   document.documentElement.classList.toggle("lock", !!(S.me && S.fbFor));
@@ -702,6 +724,23 @@ function viewThread(fid){
     </form></div>`;
 }
 
+const TEMAS_URL = "https://reinadaniela7-debug.github.io/Feedback-DIENN-2026/temas/";
+const BZ_COLORS = ["peach","rose","lilac","sky","mint","lemon"];
+function viewBuzon(){
+  const list = S.temas, ok = (list||[]).filter(t=>!t.bad);
+  const fmt = at => at ? new Date(at).toLocaleDateString("es",{day:"numeric",month:"short"}) : "";
+  const body = list===null ? `<p class="muted">Cargando sugerencias…</p>`
+    : S.temasErr ? `<p class="muted">Todavía no se puede leer el buzón. Revisa que las reglas de Firebase incluyan el bloque <b>temas</b>.</p>`
+    : !ok.length ? `<p class="muted">Aún no hay sugerencias. Cuando alguien escanee el QR y envíe un tema, aparecerá aquí.</p>`
+    : `<div class="bzgrid">${ok.map((t,i)=>`<div class="note bznote c-${BZ_COLORS[i%BZ_COLORS.length]}"><p>${esc(t.text)}</p><div class="foot"><span class="hint">${esc(fmt(t.at))}</span></div></div>`).join("")}</div>`;
+  const bad = (list||[]).length - ok.length;
+  return `<div class="stack" style="gap:18px">
+    <div class="hero"><span class="eyebrow">Solo tú puedes ver esto</span><h1>📮 Buzón de sugerencias</h1>
+      <p>Temas que el equipo propone para las cápsulas. Llegan anónimos y cifrados: solo se pueden leer con tu sesión.</p>
+      <div class="pills"><span class="pill">Sugerencias: <b>${ok.length}</b></span><a class="pill" href="${TEMAS_URL}" target="_blank" rel="noopener">Abrir la página del QR ↗</a></div></div>
+    <div class="card">${body}${bad?`<p class="muted" style="margin-top:12px">${bad} sugerencia${bad>1?"s":""} no se pudo leer.</p>`:""}</div>
+  </div>`;
+}
 function viewAdmin(){
   if(!isAdmin()) return `<div class="card login"><p class="muted">Esta sección no está disponible.</p></div>`;
   const rows = KEYS.map(k=>{
