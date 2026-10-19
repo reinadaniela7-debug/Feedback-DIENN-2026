@@ -9,25 +9,25 @@
 <style>
 /* Layout: lienzo punteado; cada persona es un carril horizontal de notas adhesivas visible de un vistazo, el feedback privado se abre en una hoja inferior */
 :root{
-  --bg:#FBF5EE; --dots:#EADBC8; --surface:#FFFFFF; --ink:#2B1D14; --muted:#6B5444; --line:#EEDFCF;
-  --accent:#B4472A; --accent-2:#E9A23B; --blue:#2F6B5F; --blue-ink:#FFFFFF; --accent-ink:#FFFFFF; --soft:#F6E6DA; --ok:#178A4C; --ok-soft:#DDF5E7; --warn:#A35F00; --danger:#C2271D;
+  --bg:#F4F1FA; --dots:#D9D2EA; --surface:#FFFFFF; --ink:#1E1A33; --muted:#6A6483; --line:#E6E0F2;
+  --accent:#6C4CF1; --accent-2:#FF7A59; --blue:#2563EB; --blue-ink:#FFFFFF; --accent-ink:#FFFFFF; --soft:#EEE9FD; --ok:#178A4C; --ok-soft:#DDF5E7; --warn:#A35F00; --danger:#C2271D;
   --note-ink:#2A2418; --n-yellow:#FFE77A; --n-pink:#FFC2D6; --n-green:#BFF0C4; --n-blue:#BBE1FF; --n-violet:#D9C9FF; --n-peach:#FFD3B0; --n-rose:#FFD6E0; --n-lilac:#E6DAFF; --n-sky:#D3EBFF; --n-mint:#CDF3E1; --n-lemon:#FFF2B3;
-  --shadow:0 1px 2px rgba(80,40,20,.06),0 10px 30px rgba(80,40,20,.08);
-  --hero:linear-gradient(120deg,#B4472A 0%,#E07A3F 55%,#E9A23B 120%);
+  --shadow:0 1px 2px rgba(40,25,90,.06),0 10px 30px rgba(40,25,90,.08);
+  --hero:linear-gradient(120deg,#6C4CF1 0%,#9B5CF6 55%,#FF7A59 120%);
   --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --body:"Figtree","Segoe UI",system-ui,sans-serif;
   --hand:"Nunito","Figtree",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#1C1410; --dots:#33261D; --surface:#261C16; --ink:#F5ECE4; --muted:#C2AE9E; --line:#3D2E24;
-  --accent:#F08A62; --accent-2:#F2B552; --blue:#6FB8A5; --blue-ink:#0F2420; --accent-ink:#2A120A; --soft:#3A2419; --ok:#6FD99B; --ok-soft:#173326; --warn:#F2B552; --danger:#FF8C82;
+  --bg:#14121F; --dots:#2A2640; --surface:#1D1A2C; --ink:#EEEAF8; --muted:#A9A3C2; --line:#2F2A45;
+  --accent:#A693FF; --accent-2:#FF9B80; --blue:#5B8CFF; --blue-ink:#0B1530; --accent-ink:#17122E; --soft:#2A2445; --ok:#6FD99B; --ok-soft:#173326; --warn:#F2B552; --danger:#FF8C82;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
-  --hero:linear-gradient(120deg,#8E3520 0%,#B5602E 55%,#B7802A 120%); color-scheme:dark}}
+  --hero:linear-gradient(120deg,#4B33C4 0%,#7440C9 55%,#C8573D 120%); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#1C1410; --dots:#33261D; --surface:#261C16; --ink:#F5ECE4; --muted:#C2AE9E; --line:#3D2E24;
-  --accent:#F08A62; --accent-2:#F2B552; --blue:#6FB8A5; --blue-ink:#0F2420; --accent-ink:#2A120A; --soft:#3A2419; --ok:#6FD99B; --ok-soft:#173326; --warn:#F2B552; --danger:#FF8C82;
+  --bg:#14121F; --dots:#2A2640; --surface:#1D1A2C; --ink:#EEEAF8; --muted:#A9A3C2; --line:#2F2A45;
+  --accent:#A693FF; --accent-2:#FF9B80; --blue:#5B8CFF; --blue-ink:#0B1530; --accent-ink:#17122E; --soft:#2A2445; --ok:#6FD99B; --ok-soft:#173326; --warn:#F2B552; --danger:#FF8C82;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
-  --hero:linear-gradient(120deg,#8E3520 0%,#B5602E 55%,#B7802A 120%); color-scheme:dark}
+  --hero:linear-gradient(120deg,#4B33C4 0%,#7440C9 55%,#C8573D 120%); color-scheme:dark}
 *{box-sizing:border-box}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}
@@ -188,7 +188,7 @@ nav.tabs button[aria-current="true"]{background:var(--accent);color:var(--accent
 
 /* hoja de feedback privado */
 html.lock,html.lock body{overflow:hidden;overscroll-behavior:none}
-.scrim{overscroll-behavior:contain;position:fixed;inset:0;background:rgba(35,18,10,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.scrim{overscroll-behavior:contain;position:fixed;inset:0;background:rgba(15,10,35,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--surface);width:min(760px,100%);max-height:92vh;overflow-y:auto;overscroll-behavior:contain;border-radius:24px 24px 0 0;padding:22px max(18px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));display:flex;flex-direction:column;gap:14px;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
 @media (min-width:800px){.scrim{align-items:center}.sheet{border-radius:24px}}
 .fbgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
