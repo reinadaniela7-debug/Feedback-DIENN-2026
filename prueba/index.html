@@ -281,6 +281,12 @@ footer{margin-top:36px;text-align:center;font-size:.8rem;color:var(--muted)}
 .ex.yes span{color:var(--ok)}
 .exswipe{display:none}
 @media (max-width:560px){.exswipe{display:block;font-size:.78rem;color:var(--muted);margin-top:6px}.exlist{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;-webkit-overflow-scrolling:touch}.expair{flex:0 0 86%;scroll-snap-align:start;grid-template-columns:1fr;align-content:start}}
+.sig{display:block;font-size:.85rem;font-weight:700;opacity:.75;margin-top:-2px}
+.signopt{display:flex;align-items:center;gap:6px;font:600 .82rem var(--body);color:var(--note-ink);opacity:.85;cursor:pointer}
+.signopt input{width:16px;height:16px;margin:0;accent-color:var(--note-ink)}
+.askq{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 16px;margin:4px 0 14px}
+.askq p{margin:0}
+.askq b{font-family:var(--display);font-size:1.08rem}
 </style>
 </head>
 <body>
@@ -293,7 +299,7 @@ footer{margin-top:36px;text-align:center;font-size:.8rem;color:var(--muted)}
   <main id="app">
     <div class="card login stack"><h2>Cargando el tablero…</h2><p class="muted">Aquí dejarás notas para el equipo y feedback privado.</p></div>
   </main>
-  <footer>Las notas son públicas y anónimas. El feedback privado va cifrado: solo lo lee quien lo recibe.</footer>
+  <footer>Las notas son públicas y el feedback privado va cifrado: solo lo lee quien lo recibe. Todo es anónimo, salvo que elijas mostrar tu nombre.</footer>
 </div>
 <div id="sheet"></div>
 <div class="toast" id="toast" hidden></div>
@@ -477,9 +483,9 @@ async function saveMine(list, notes){
 }
 
 /* ---------- notas públicas ---------- */
-async function addNote(to, text, color){
+async function addNote(to, text, color, sign){
   const id = newId();
-  await S.db.doc("prueba_notes/"+id).set({to, text, color, votes:[], month:MONTH});
+  await S.db.doc("prueba_notes/"+id).set({to, text, color, votes:[], month:MONTH, ...(sign?{from:S.me}:{})});
   await saveMine(S.given, [...S.myNotes, {id, to}]);
 }
 async function deleteNote(id){
@@ -593,7 +599,7 @@ function viewLogin(){
 function noteHtml(n, canVote){
   const votes = n.votes||[], mine = isMine(n.id), voted = votes.includes(S.me);
   return `<article class="note c-${esc(n.color)}" style="--r:${rot(n.id)}">
-    <p>${esc(n.text)}</p>
+    <p>${esc(n.text)}</p>${n.from&&NAME[n.from]?`<span class="sig">— ${esc(NAME[n.from])}</span>`:""}
     <div class="foot">
       ${mine?`<button class="x" data-act="delnote" data-id="${n.id}">Borrar</button>`:"<span></span>"}
       <button class="vote" data-act="vote" data-id="${n.id}" aria-pressed="${voted}" ${!canVote||mine?"disabled":""} aria-label="Estoy de acuerdo, ${votes.length} votos">♥ ${votes.length}</button>
@@ -603,8 +609,9 @@ function composerHtml(k){
   const c = S.compose;
   if(c.to!==k) return `<button class="note composer" data-act="opennote" data-k="${k}"><span class="plus">＋</span>Nota para ${esc(NAME[k])}</button>`;
   return `<form class="note composer open c-${c.color}" id="noteForm">
-    <textarea id="noteText" maxlength="280" placeholder="¿Qué aporta al equipo? ¿Qué quieres reconocerle o agradecerle?" aria-label="Tu nota para ${esc(NAME[k])}">${esc(c.text)}</textarea>
+    <textarea id="noteText" maxlength="280" placeholder="¿Qué te gustaría reconocerle a ${esc(NAME[k])}? ¿Qué aporta al equipo?" aria-label="Tu nota para ${esc(NAME[k])}">${esc(c.text)}</textarea>
     <div class="swatches">${COLORS.map(col=>`<button type="button" class="sw c-${col}" data-act="color" data-c="${col}" aria-pressed="${c.color===col}" aria-label="Color ${col}"></button>`).join("")}</div>
+    <label class="signopt"><input type="checkbox" id="noteSign"${c.sign?" checked":""}> Mostrar mi nombre</label>
     <div class="foot"><button type="button" class="x" data-act="closenote">Cancelar</button><button class="notebtn" type="submit">Pegar</button></div>
   </form>`;
 }
@@ -633,13 +640,14 @@ function viewHome(){
   return `<div class="hero">
       <div class="stickers" aria-hidden="true"><i style="background:var(--n-yellow);transform:rotate(-8deg)"></i><i style="background:var(--n-pink);transform:rotate(5deg)"></i><i style="background:var(--n-green);transform:rotate(-3deg)"></i></div>
       <span class="eyebrow hi">Hola, ${esc(NAME[S.me])}</span><h1>El tablero del equipo</h1>
-      <p class="lead">Este Feedback 360 es para reconocernos y ayudarnos a crecer como equipo. Funciona así: en el tablero de cada persona deja una <b>nota pública</b> con lo que aporta al equipo o lo que le agradeces; si alguien ya escribió lo que piensas, dale ♥. Después, elige al menos ${MIN_FB} personas y envíales <b>feedback privado</b>: un regalo para que crezcan, que solo verá esa persona y sin saber que fuiste tú.</p>
+      <p class="lead">Este Feedback 360 es para reconocernos y ayudarnos a crecer como equipo. Funciona así: en el tablero de cada persona deja una <b>nota pública</b> con lo que aporta al equipo o lo que le agradeces; si alguien ya escribió lo que piensas, dale ♥. Después, elige al menos ${MIN_FB} personas y envíales <b>feedback privado</b>: un regalo para que crezcan, que solo verá esa persona. Todo es anónimo, a menos que decidas mostrar tu nombre.</p>
       <div class="progress">
         <div class="prog ${withNote.size>=others.length?"done":""}"><div class="lbl"><span>📝 Notas públicas</span><b>${withNote.size} de ${others.length}</b></div><div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="${others.length}" aria-valuenow="${withNote.size}"><i style="width:${Math.round(withNote.size/others.length*100)}%"></i></div></div>
         <div class="prog ${fb>=MIN_FB?"done":""}"><div class="lbl"><span>🔒 Feedback privado</span><b>${Math.min(fb,MIN_FB)} de ${MIN_FB}${fb>=MIN_FB?" ✓":""}</b></div><div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="${MIN_FB}" aria-valuenow="${Math.min(fb,MIN_FB)}"><i style="width:${Math.round(Math.min(fb,MIN_FB)/MIN_FB*100)}%"></i></div><span class="ptip">💡 Recuerda: 3 es el mínimo, ¡puedes darle feedback a todas las personas que quieras!${fb>MIN_FB?` Llevas ${fb}.`:""}</span></div>
       </div>
     </div>
     <label class="search" for="q"><span aria-hidden="true">🔎</span><input id="q" type="search" placeholder="Buscar a alguien del equipo…" value="${esc(S.q)}" autocomplete="off"></label>
+    <div class="askq"><span aria-hidden="true">📝</span><p><b>¿Qué te gustaría reconocer al equipo?</b> Déjale una nota pública a cada persona.</p></div>
     <div class="lanes">${order.length?order.map(lane).join(""):`<p class="muted">Nadie coincide con “${esc(S.q)}”.</p>`}</div>`;
 }
 
@@ -669,13 +677,14 @@ function viewSheet(k){
         <textarea id="pt_${K.kind}" data-draft maxlength="600" placeholder="${esc(K.ph)}" aria-label="${esc(K.tag)}">${esc(d["pt_"+K.kind]||"")}</textarea>
         <span class="hint" id="pt_${K.kind}_h"></span>
         <div class="foot"><div class="swatches" role="group" aria-label="Color del post-it">${FB_COLORS.map(c=>`<button type="button" class="sw c-${c}" data-act="fbcolor" data-c="${c}" aria-pressed="${fbColor()===c}" aria-label="Color ${FB_NAMES[c]}"></button>`).join("")}</div><button class="notebtn" type="submit">Pegar post-it</button></div>
+        <label class="signopt"><input type="checkbox" id="fbSign"${S.fbSign?" checked":""}> Firmar con mi nombre</label>
       </form>
       ${mine.length?`<div class="sentlist"><span class="eyebrow">Ya le pegaste ${mine.length}</span>${mine.map(g=>`<div class="note pnote c-${fbCol(g.data)||K.color}" style="--r:${rot(g.fid||g.data[K.kind])}"><p>${esc(g.data[K.kind])}</p>${g.pending?`<div class="foot"><span class="hint">Se entrega cuando entre</span></div>`:""}</div>`).join("")}</div>`:""}
     </div>`;
   };
   return `<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true">
     <div class="row" style="justify-content:space-between"><div class="who"><span class="av" style="--c:${avColor(k)}" aria-hidden="true">${esc(NAME[k][0])}</span><div><span class="eyebrow">Feedback privado${sent.length?` · ${sent.length} post-its enviados`:""}</span><h2>${esc(NAME[k])}</h2></div></div><button class="btn" data-act="closefb">Listo</button></div>
-    <div class="tipbox"><b>Cómo escribirlo: situación → acción → impacto.</b> Solo ${esc(NAME[k])} lo verá, y no sabrá que fuiste tú. Pega todos los post-its que quieras.
+    <div class="tipbox"><b>Cómo escribirlo: situación → acción → impacto.</b> Solo ${esc(NAME[k])} lo verá. Es anónimo, a menos que marques “Firmar con mi nombre”. Pega todos los post-its que quieras.
       <details class="examples"${lget("rfp.ex")==="0"?"":" open"}><summary>Ejemplos: cómo sí y cómo no</summary>
         <span class="exswipe">Desliza para ver más →</span><div class="exlist">${FB_EXAMPLES.map(e=>`<div class="expair"><div class="ex no"><span>✗ Así no</span><p>${e.no}</p><small>${e.why}</small></div><div class="ex yes"><span>✓ Así sí</span><p>${e.yes}</p></div></div>`).join("")}</div>
       </details></div>
@@ -716,6 +725,7 @@ function viewMine(){
       <span class="lockbadge">🔒 Solo para ti</span>
       ${gift?`<div class="part"><b>🎁 Te regalan para crecer</b><p>${esc(gift)}</p></div>`:""}
       ${recT?`<div class="part"><b>💜 Te reconocen</b><p>${esc(recT)}</p></div>`:""}
+      ${r.from&&NAME[r.from]?`<span class="sig">— ${esc(NAME[r.from])}</span>`:""}
     </article>`;
   };
   return `<div class="stack" style="gap:20px">
@@ -727,11 +737,11 @@ function viewMine(){
       ${!ns.length&&!rec.length?`<p class="muted">Aún no tienes comentarios. Cuando el equipo te escriba, aquí verás el resumen.</p>`:""}
     </section>
     <details class="sec" data-sec="priv"${secOpen("priv")}><summary><h2>🔒 Feedback privado para ti</h2><span class="chip">${rec.length}</span></summary>
-      <p class="small muted">Solo tú lo ves. No sabrás quién lo escribió.</p>
+      <p class="small muted">Solo tú lo ves. Es anónimo, salvo que la persona haya decidido firmarlo.</p>
       ${rec.length?`<div class="board">${rec.map(fbCard).join("")}</div>`:`<section class="private"><p class="muted">Aún no has recibido feedback privado.</p></section>`}
     </details>
-    <details class="sec" data-sec="pub"${secOpen("pub")}><summary><h2>📝 Notas públicas</h2><span class="chip">${ns.length}</span></summary>
-      <p class="small muted">Ordenadas por ♥.</p>
+    <details class="sec" data-sec="pub"${secOpen("pub")}><summary><h2>📝 ¿Qué aporto al equipo?</h2><span class="chip">${ns.length}</span></summary>
+      <p class="small muted">Notas públicas: lo que el equipo reconoce de ti, ordenado por ♥.</p>
       <div class="board">${ns.length?ns.map(n=>noteHtml(n,false)).join(""):`<div class="note c-yellow"><p>Todavía no tienes notas. Aparecerán aquí cuando el equipo te escriba.</p></div>`}</div>
     </details>
   </div>`;
@@ -793,22 +803,24 @@ document.addEventListener("click", async e=>{
     S.view=b.dataset.v; S.thread=null; S.err=""; render(); window.scrollTo(0,0); }
   else if(a==="logout") logout();
   else if(a==="thread"){ S.thread = S.thread===b.dataset.f?null:b.dataset.f; render(); }
-  else if(a==="opennote"){ S.compose={to:b.dataset.k,text:"",color:randColor()}; render(); $("#noteText")?.focus({preventScroll:true}); }
+  else if(a==="opennote"){ S.compose={to:b.dataset.k,text:"",color:randColor(),sign:false}; render(); $("#noteText")?.focus({preventScroll:true}); }
   else if(a==="fold"){ const k=b.dataset.k; lset("rfp.col."+k, lget("rfp.col."+k)==="1"?"0":"1"); render(); }
   else if(a==="closenote"){ S.compose={to:null,text:"",color:"yellow"}; render(); }
   else if(a==="fbcolor"){ lset("rfp.fbcolor", b.dataset.c); const f=$(".pform"); if(f){ FB_COLORS.forEach(c=>f.classList.remove("c-"+c)); f.classList.add("c-"+b.dataset.c); f.querySelectorAll("[data-act=fbcolor]").forEach(x=>x.setAttribute("aria-pressed", x.dataset.c===b.dataset.c)); } $("#pt_gift")?.focus({preventScroll:true}); }
   else if(a==="color"){ S.compose.color=b.dataset.c; render(); $("#noteText")?.focus({preventScroll:true}); }
   else if(a==="openfb"){ S.fbFor=b.dataset.k; S.err=""; render(); }
-  else if(a==="closefb"){ S.fbFor=null; S.err=""; render(); }
+  else if(a==="closefb"){ S.fbSign=false; S.fbFor=null; S.err=""; render(); }
   else if(a==="bzvote"){ b.disabled=true; try{ await toggleTemaVote(b.dataset.id); }catch(x){ toast("No se pudo registrar tu voto"); b.disabled=false; } }
   else if(a==="vote"){ b.disabled=true; try{ await toggleVote(b.dataset.id); }catch(x){ toast("No se pudo registrar tu voto"); } }
   else if(a==="delnote"){ try{ await deleteNote(b.dataset.id); toast("Nota borrada"); render(); }catch(x){ toast("No se pudo borrar la nota"); } }
 });
 document.addEventListener("toggle", e=>{ if(e.target.matches && e.target.matches("details.examples")) lset("rfp.ex", e.target.open?"1":"0"); }, true);
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && S.fbFor){ S.fbFor=null; render(); } });
-document.addEventListener("change", e=>{ if(e.target.id==="who"){ S.loginKey=e.target.value; S.err=""; render(); $("#pw")?.focus(); } });
+document.addEventListener("change", e=>{ if(e.target.id==="noteSign") S.compose.sign=e.target.checked; if(e.target.id==="fbSign") S.fbSign=e.target.checked; if(e.target.id==="who"){ S.loginKey=e.target.value; S.err=""; render(); $("#pw")?.focus(); } });
 document.addEventListener("input", e=>{
   if(e.target.id==="noteText") S.compose.text = e.target.value;
+  if(e.target.id==="noteSign") S.compose.sign = e.target.checked;
+  if(e.target.id==="fbSign") S.fbSign = e.target.checked;
   if(e.target.id==="q"){ S.q = e.target.value; render(); }
   if(e.target.matches("[data-draft]")){ lset("rfp.draft3."+S.me+"."+S.fbFor, JSON.stringify(collect())); updateHints(); }
 });
@@ -831,7 +843,7 @@ document.addEventListener("submit", async e=>{
   }
   else if(f.id==="noteForm"){
     const text = S.compose.text.trim(), to = S.compose.to; if(text.length<3){ toast("Escribe tu nota primero"); return; }
-    try{ await addNote(to, text, S.compose.color); S.compose={to:null,text:"",color:"yellow"}; toast("Nota pegada para "+NAME[to]); render(); }
+    try{ await addNote(to, text, S.compose.color, S.compose.sign); S.compose={to:null,text:"",color:"yellow"}; toast("Nota pegada para "+NAME[to]); render(); }
     catch(x){ toast("No se pudo pegar la nota. Intenta de nuevo."); }
   }
   else if(f.dataset.kind){
@@ -839,7 +851,7 @@ document.addEventListener("submit", async e=>{
     if(text.length<20){ toast("Escribe al menos 20 caracteres"); return; }
     if(S.busy) return; S.busy=true;
     const dr = draft(k); dr["pt_"+kind]=""; lset("rfp.draft3."+S.me+"."+k, JSON.stringify(dr)); ta.value="";
-    try{ await submitFeedback(k, {[kind]:text, color:fbColor()}); toast("Post-it pegado para "+NAME[k]); render(); $("#pt_"+kind)?.focus({preventScroll:true}); }
+    try{ await submitFeedback(k, {[kind]:text, color:fbColor(), ...(S.fbSign?{from:S.me}:{})}); toast("Post-it pegado para "+NAME[k]); render(); $("#pt_"+kind)?.focus({preventScroll:true}); }
     catch(x){ toast(typeof x==="string"?x:"No se pudo enviar. Intenta de nuevo."); const t2=$("#pt_"+kind); if(t2){ t2.value=text; } dr["pt_"+kind]=text; lset("rfp.draft3."+S.me+"."+k, JSON.stringify(dr)); }
     S.busy=false;
   }
