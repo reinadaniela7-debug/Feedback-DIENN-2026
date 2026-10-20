@@ -268,6 +268,19 @@ footer{margin-top:36px;text-align:center;font-size:.8rem;color:var(--muted)}
 .bzrank{position:absolute;top:-10px;right:10px;background:var(--accent);color:var(--accent-ink);font:800 .78rem var(--body);padding:.15rem .5rem;border-radius:999px}
 .bzform{display:flex;flex-direction:column;gap:10px}
 .bzform textarea{min-height:90px}
+.examples{margin-top:10px}
+.examples summary{cursor:pointer;font-weight:700;color:var(--accent)}
+.expair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.ex{border-radius:12px;padding:10px 12px;font-size:.88rem;line-height:1.4}
+.ex span{display:block;font-weight:800;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.ex p{margin:0}
+.ex small{display:block;margin-top:6px;opacity:.8}
+.ex.no{background:color-mix(in srgb,var(--danger) 10%,var(--surface));color:var(--ink)}
+.ex.no span{color:var(--danger)}
+.ex.yes{background:var(--ok-soft);color:var(--ink)}
+.ex.yes span{color:var(--ok)}
+.exswipe{display:none}
+@media (max-width:560px){.exswipe{display:block;font-size:.78rem;color:var(--muted);margin-top:6px}.exlist{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;-webkit-overflow-scrolling:touch}.expair{flex:0 0 86%;scroll-snap-align:start;grid-template-columns:1fr;align-content:start}}
 </style>
 </head>
 <body>
@@ -633,6 +646,15 @@ function viewHome(){
 const KINDS = [
   {kind:"gift", tag:"🎁 Te regalo para crecer", color:"peach", ph:"El martes noté que interrumpiste antes de que terminaran. Te propongo anotar tu idea y compartirla al final."}];
 const FB_IDS = ["pt_gift"];
+const FB_EXAMPLES = [
+  {no:"“Eres muy desorganizado.”", why:"Juzga cómo es la persona y no dice qué pasó.",
+   yes:"“En la entrega del jueves faltaron dos archivos y el cliente tuvo que pedirlos. Te propongo revisar una checklist antes de enviar.”"},
+  {no:"“Siempre llegas tarde a las reuniones.”", why:"Usa “siempre” y no propone nada.",
+   yes:"“En las dos últimas reuniones de equipo llegaste 10 minutos tarde y empezamos sin tu actualización. ¿Te ayudaría que la movamos 15 minutos?”"},
+  {no:"“Tienes que comunicarte mejor.”", why:"Es tan general que no se sabe qué cambiar.",
+   yes:"“En la presentación del lunes explicaste el plan con un caso real y todos entendimos qué hacer. Me encantaría que también lo hicieras en los correos al equipo.”"},
+  {no:"“Buen trabajo.”", why:"Se agradece, pero no dice qué repetir.",
+   yes:"“Cuando ayudaste a Ana a preparar el informe el viernes, salimos a tiempo y sin estrés. Gracias por ofrecerte sin que te lo pidieran.”"}];
 const FB_COLORS = ["peach","rose","lilac","sky","mint","lemon"];
 const FB_NAMES = {peach:"durazno",rose:"rosado",lilac:"lila",sky:"celeste",mint:"menta",lemon:"amarillo"};
 const fbColor = () => { const c = lget("rfp.fbcolor"); return FB_COLORS.includes(c) ? c : "peach"; };
@@ -654,7 +676,9 @@ function viewSheet(k){
   return `<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true">
     <div class="row" style="justify-content:space-between"><div class="who"><span class="av" style="--c:${avColor(k)}" aria-hidden="true">${esc(NAME[k][0])}</span><div><span class="eyebrow">Feedback privado${sent.length?` · ${sent.length} post-its enviados`:""}</span><h2>${esc(NAME[k])}</h2></div></div><button class="btn" data-act="closefb">Listo</button></div>
     <div class="tipbox"><b>Cómo escribirlo: situación → acción → impacto.</b> Solo ${esc(NAME[k])} lo verá, y no sabrá que fuiste tú. Pega todos los post-its que quieras.
-      <ul><li>Cuenta cuándo pasó, qué hizo y qué efecto tuvo.</li><li>Habla de lo que hace, no de cómo es.</li><li>Usa ejemplos concretos.</li><li>Evita “siempre” y “nunca”.</li><li>El regalo es una oportunidad para dar un posible plan accionable o una solución.</li></ul></div>
+      <details class="examples"${lget("rfp.ex")==="0"?"":" open"}><summary>Ejemplos: cómo sí y cómo no</summary>
+        <span class="exswipe">Desliza para ver más →</span><div class="exlist">${FB_EXAMPLES.map(e=>`<div class="expair"><div class="ex no"><span>✗ Así no</span><p>${e.no}</p><small>${e.why}</small></div><div class="ex yes"><span>✓ Así sí</span><p>${e.yes}</p></div></div>`).join("")}</div>
+      </details></div>
     <div class="pboard">${KINDS.map(col).join("")}</div>
   </div></div>`;
 }
@@ -780,6 +804,7 @@ document.addEventListener("click", async e=>{
   else if(a==="vote"){ b.disabled=true; try{ await toggleVote(b.dataset.id); }catch(x){ toast("No se pudo registrar tu voto"); } }
   else if(a==="delnote"){ try{ await deleteNote(b.dataset.id); toast("Nota borrada"); render(); }catch(x){ toast("No se pudo borrar la nota"); } }
 });
+document.addEventListener("toggle", e=>{ if(e.target.matches && e.target.matches("details.examples")) lset("rfp.ex", e.target.open?"1":"0"); }, true);
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && S.fbFor){ S.fbFor=null; render(); } });
 document.addEventListener("change", e=>{ if(e.target.id==="who"){ S.loginKey=e.target.value; S.err=""; render(); $("#pw")?.focus(); } });
 document.addEventListener("input", e=>{
