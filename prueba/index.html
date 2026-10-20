@@ -287,6 +287,7 @@ footer{margin-top:36px;text-align:center;font-size:.8rem;color:var(--muted)}
 .askq{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 16px;margin:4px 0 14px}
 .askq p{margin:0}
 .askq b{font-family:var(--display);font-size:1.08rem}
+.laneq{font-size:.86rem;font-weight:600;color:var(--accent);line-height:1.3;margin:1px 0 2px}
 </style>
 </head>
 <body>
@@ -609,7 +610,7 @@ function composerHtml(k){
   const c = S.compose;
   if(c.to!==k) return `<button class="note composer" data-act="opennote" data-k="${k}"><span class="plus">＋</span>Nota para ${esc(NAME[k])}</button>`;
   return `<form class="note composer open c-${c.color}" id="noteForm">
-    <textarea id="noteText" maxlength="280" placeholder="¿Qué te gustaría reconocerle a ${esc(NAME[k])}? ¿Qué aporta al equipo?" aria-label="Tu nota para ${esc(NAME[k])}">${esc(c.text)}</textarea>
+    <textarea id="noteText" maxlength="280" placeholder="Escribe aquí lo que reconoces de ${esc(NAME[k])}…" aria-label="Tu nota para ${esc(NAME[k])}">${esc(c.text)}</textarea>
     <div class="swatches">${COLORS.map(col=>`<button type="button" class="sw c-${col}" data-act="color" data-c="${col}" aria-pressed="${c.color===col}" aria-label="Color ${col}"></button>`).join("")}</div>
     <label class="signopt"><input type="checkbox" id="noteSign"${c.sign?" checked":""}> Mostrar mi nombre</label>
     <div class="foot"><button type="button" class="x" data-act="closenote">Cancelar</button><button class="notebtn" type="submit">Pegar</button></div>
@@ -630,7 +631,7 @@ function viewHome(){
     return `<section class="lane ${sent?"":"pending"} ${col?"collapsed":""}" aria-label="Notas para ${esc(NAME[k])}">
       <div class="lane-head">
         <div class="who"><button class="fold" data-act="fold" data-k="${k}" aria-expanded="${!col}" aria-label="${col?"Mostrar":"Ocultar"} notas de ${esc(NAME[k])}">▾</button><span class="av" style="--c:${avColor(k)}" aria-hidden="true">${esc(NAME[k][0])}</span>
-          <div><b>${esc(NAME[k])}</b><div class="count">${ns.length?`${ns.length} ${ns.length===1?"nota":"notas"}`:"Aún sin notas"}${withNote.has(k)?" · ✓ tu nota":""}</div></div></div>
+          <div><b>${esc(NAME[k])}</b><div class="laneq">¿Qué te gustaría reconocer que aporto al equipo?</div><div class="count">${ns.length?`${ns.length} ${ns.length===1?"nota":"notas"}`:"Aún sin notas"}${withNote.has(k)?" · ✓ tu nota":""}</div></div></div>
         <div class="lane-actions">${sent?`<span class="chip ok">✓ Le diste feedback</span>`:`<span class="chip">Pendiente</span>`}
           <button class="fbbtn" data-act="openfb" data-k="${k}">🔒 ${sent?"Otro feedback privado":"Dar feedback privado"}${sent?`<span class="n">${sent}</span>`:""}</button></div>
       </div>
