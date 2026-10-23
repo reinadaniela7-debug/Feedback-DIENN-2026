@@ -307,7 +307,7 @@ footer{margin-top:36px;text-align:center;font-size:.8rem;color:var(--muted)}
   <main id="app">
     <div class="card login stack"><h2>Cargando el tablero…</h2><p class="muted">Aquí dejarás notas para el equipo y feedback privado.</p></div>
   </main>
-  <footer>Las notas son públicas y el feedback privado va cifrado: solo lo lee quien lo recibe. Todo es anónimo, salvo que elijas mostrar tu nombre.</footer>
+  <footer>Las notas son públicas y el feedback privado va cifrado: solo lo lee quien lo recibe. Las notas y el feedback nuevos llevan el nombre de quien los escribe.</footer>
 </div>
 <div id="sheet"></div>
 <div class="toast" id="toast" hidden></div>
@@ -534,9 +534,10 @@ async function saveMine(list, notes){
 }
 
 /* ---------- notas públicas ---------- */
+const SIGN = {notes:true, fb:true};
 async function addNote(to, text, color, sign){
   const id = newId();
-  await S.db.doc("prueba_notes/"+id).set({to, text, color, votes:[], month:MONTH, ...(sign?{from:S.me}:{})});
+  await S.db.doc("prueba_notes/"+id).set({to, text, color, votes:[], month:MONTH, ...(sign||SIGN.notes?{from:S.me}:{})});
   await saveMine(S.given, [...S.myNotes, {id, to}]);
 }
 async function deleteNote(id){
@@ -678,7 +679,7 @@ function composerHtml(k){
   return `<form class="note composer open c-${c.color}" id="noteForm">
     <textarea id="noteText" maxlength="280" placeholder="Escribe aquí lo que reconoces de ${esc(NAME[k])}…" aria-label="Tu nota para ${esc(NAME[k])}">${esc(c.text)}</textarea>
     <div class="swatches">${COLORS.map(col=>`<button type="button" class="sw c-${col}" data-act="color" data-c="${col}" aria-pressed="${c.color===col}" aria-label="Color ${col}"></button>`).join("")}</div>
-    <label class="signopt"><input type="checkbox" id="noteSign"${c.sign?" checked":""}> Mostrar mi nombre</label>
+    ${SIGN.notes?`<span class="signopt">✍️ Se mostrará tu nombre</span>`:`<label class="signopt"><input type="checkbox" id="noteSign"${c.sign?" checked":""}> Mostrar mi nombre</label>`}
     <div class="foot"><button type="button" class="x" data-act="closenote">Cancelar</button><button class="notebtn" type="submit">Pegar</button></div>
   </form>`;
 }
@@ -707,7 +708,7 @@ function viewHome(){
   return `<div class="hero">
       <div class="stickers" aria-hidden="true"><i style="background:var(--n-yellow);transform:rotate(-8deg)"></i><i style="background:var(--n-pink);transform:rotate(5deg)"></i><i style="background:var(--n-green);transform:rotate(-3deg)"></i></div>
       <span class="eyebrow hi">Hola, ${esc(NAME[S.me])}</span><h1>El tablero del equipo</h1>
-      <p class="lead">Este Feedback 360 es para reconocernos y ayudarnos a crecer como equipo. Funciona así: en el tablero de cada persona deja una <b>nota pública</b> con lo que aporta al equipo o lo que le agradeces; si alguien ya escribió lo que piensas, dale ♥. Después, elige al menos ${MIN_FB} personas y envíales <b>feedback privado</b>: un regalo para que crezcan, que solo verá esa persona. Todo es anónimo, a menos que decidas mostrar tu nombre.</p>
+      <p class="lead">Este Feedback 360 es para reconocernos y ayudarnos a crecer como equipo. Funciona así: en el tablero de cada persona deja una <b>nota pública</b> con lo que aporta al equipo o lo que le agradeces; si alguien ya escribió lo que piensas, dale ♥. Después, elige al menos ${MIN_FB} personas y envíales <b>feedback privado</b>: un regalo para que crezcan, que solo verá esa persona. ${SIGN.notes&&SIGN.fb?"Las notas y el feedback llevan tu nombre.":SIGN.notes?"Las notas públicas llevan tu nombre; el feedback privado es anónimo, a menos que decidas firmarlo.":"Todo es anónimo, a menos que decidas mostrar tu nombre."}</p>
       <div class="progress">
         <div class="prog ${withNote.size>=others.length?"done":""}"><div class="lbl"><span>📝 Notas públicas</span><b>${withNote.size} de ${others.length}</b></div><div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="${others.length}" aria-valuenow="${withNote.size}"><i style="width:${Math.round(withNote.size/others.length*100)}%"></i></div></div>
         <div class="prog ${fb>=MIN_FB?"done":""}"><div class="lbl"><span>🔒 Feedback privado</span><b>${Math.min(fb,MIN_FB)} de ${MIN_FB}${fb>=MIN_FB?" ✓":""}</b></div><div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="${MIN_FB}" aria-valuenow="${Math.min(fb,MIN_FB)}"><i style="width:${Math.round(Math.min(fb,MIN_FB)/MIN_FB*100)}%"></i></div><span class="ptip">💡 Recuerda: 3 es el mínimo, ¡puedes darle feedback a todas las personas que quieras!${fb>MIN_FB?` Llevas ${fb}.`:""}</span></div>
@@ -745,14 +746,14 @@ function viewSheet(k){
         <textarea id="pt_${K.kind}" data-draft maxlength="600" placeholder="${esc(K.ph)}" aria-label="${esc(K.tag)}">${esc(d["pt_"+K.kind]||"")}</textarea>
         <span class="hint" id="pt_${K.kind}_h"></span>
         <div class="foot"><div class="swatches" role="group" aria-label="Color del post-it">${FB_COLORS.map(c=>`<button type="button" class="sw c-${c}" data-act="fbcolor" data-c="${c}" aria-pressed="${fbColor()===c}" aria-label="Color ${FB_NAMES[c]}"></button>`).join("")}</div><button class="notebtn" type="submit">Pegar post-it</button></div>
-        <label class="signopt"><input type="checkbox" id="fbSign"${S.fbSign?" checked":""}> Firmar con mi nombre</label>
+        ${SIGN.fb?`<span class="signopt">✍️ Va firmado con tu nombre</span>`:`<label class="signopt"><input type="checkbox" id="fbSign"${S.fbSign?" checked":""}> Firmar con mi nombre</label>`}
       </form>
       ${mine.length?`<div class="sentlist"><span class="eyebrow">Ya le pegaste ${mine.length}</span>${mine.map(g=>`<div class="note pnote c-${fbCol(g.data)||K.color}" style="--r:${rot(g.fid||g.data[K.kind])}"><p>${esc(g.data[K.kind])}</p>${g.pending?`<div class="foot"><span class="hint">Se entrega cuando entre</span></div>`:""}</div>`).join("")}</div>`:""}
     </div>`;
   };
   return `<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true">
     <div class="row" style="justify-content:space-between"><div class="who"><span class="av" style="--c:${avColor(k)}" aria-hidden="true">${esc(NAME[k][0])}</span><div><span class="eyebrow">Feedback privado${sent.length?` · ${sent.length} post-its enviados`:""}</span><h2>${esc(NAME[k])}</h2></div></div><button class="btn" data-act="closefb">Listo</button></div>
-    <div class="tipbox"><b>Cómo escribirlo: situación → acción → impacto.</b> Solo ${esc(NAME[k])} lo verá. Es anónimo, a menos que marques “Firmar con mi nombre”. Pega todos los post-its que quieras.
+    <div class="tipbox"><b>Cómo escribirlo: situación → acción → impacto.</b> Solo ${esc(NAME[k])} lo verá${SIGN.fb?", con tu nombre":". Es anónimo, a menos que marques “Firmar con mi nombre”"}. Pega todos los post-its que quieras.
       <details class="examples"${lget("rfp.ex")==="0"?"":" open"}><summary>Ejemplos: cómo sí y cómo no</summary>
         <span class="exswipe">Desliza para ver más →</span><div class="exlist">${FB_EXAMPLES.map(e=>`<div class="expair"><div class="ex no"><span>✗ Así no</span><p>${e.no}</p><small>${e.why}</small></div><div class="ex yes"><span>✓ Así sí</span><p>${e.yes}</p></div></div>`).join("")}</div>
       </details></div>
@@ -818,7 +819,7 @@ function viewMine(){
       ${!ns.length&&!rec.length?`<p class="muted">Aún no tienes comentarios. Cuando el equipo te escriba, aquí verás el resumen.</p>`:""}
     </section>
     <details class="sec" data-sec="priv"${secOpen("priv")}><summary><h2>🔒 Feedback privado para ti</h2><span class="chip">${rec.length}</span></summary>
-      <p class="small muted">Solo tú lo ves. Es anónimo, salvo que la persona haya decidido firmarlo.</p>
+      <p class="small muted">Solo tú lo ves. Cuando la persona lo firmó, verás su nombre.</p>
       ${rec.length?`<div class="board">${rec.map(fbCard).join("")}</div>`:`<section class="private"><p class="muted">Aún no has recibido feedback privado.</p></section>`}
     </details>
     <details class="sec" data-sec="pub"${secOpen("pub")}><summary><h2>📝 ¿Qué aporto al equipo?</h2><span class="chip">${ns.length}</span></summary>
@@ -952,7 +953,7 @@ document.addEventListener("submit", async e=>{
     if(text.length<20){ toast("Escribe al menos 20 caracteres"); return; }
     if(S.busy) return; S.busy=true;
     const dr = draft(k); dr["pt_"+kind]=""; lset("rfp.draft3."+S.me+"."+k, JSON.stringify(dr)); ta.value="";
-    try{ await submitFeedback(k, {[kind]:text, color:fbColor(), ...(S.fbSign?{from:S.me}:{})}); toast("Post-it pegado para "+NAME[k]); render(); $("#pt_"+kind)?.focus({preventScroll:true}); }
+    try{ await submitFeedback(k, {[kind]:text, color:fbColor(), ...(S.fbSign||SIGN.fb?{from:S.me}:{})}); toast("Post-it pegado para "+NAME[k]); render(); $("#pt_"+kind)?.focus({preventScroll:true}); }
     catch(x){ toast(typeof x==="string"?x:"No se pudo enviar. Intenta de nuevo."); const t2=$("#pt_"+kind); if(t2){ t2.value=text; } dr["pt_"+kind]=text; lset("rfp.draft3."+S.me+"."+k, JSON.stringify(dr)); }
     S.busy=false;
   }
