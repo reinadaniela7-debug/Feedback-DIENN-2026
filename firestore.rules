@@ -3,7 +3,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /members/{id} {
       allow read, create: if true;
-      allow update, delete: if false;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['salt','iv','wrapped','rsalt','riv','rwrapped']);
+      allow delete: if true;
     }
     match /feedback/{id} {
       allow read, create: if true;
@@ -27,7 +28,8 @@ service cloud.firestore {
     }
     match /prueba_members/{id} {
       allow read, create: if true;
-      allow update, delete: if false;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['salt','iv','wrapped','rsalt','riv','rwrapped']);
+      allow delete: if true;
     }
     match /prueba_feedback/{id} {
       allow read, create: if true;
