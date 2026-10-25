@@ -179,7 +179,8 @@ nav.tabs button[aria-current="true"]{background:var(--accent);color:var(--accent
 .pcol.rec .tag{background:var(--accent);color:var(--accent-ink)}
 .pnote{width:auto;min-height:0}
 .pform{transform:none}
-.pform textarea{background:transparent;border:0;font-family:var(--hand);font-size:1.05rem;min-height:90px;padding:0;color:var(--note-ink)}
+.pform textarea{background:transparent;border:0;font-family:var(--hand);font-size:1.05rem;min-height:90px;padding:0;color:var(--note-ink);field-sizing:content;max-height:60vh;overflow-y:auto}
+.secret p,.pnote p{white-space:pre-wrap;overflow-wrap:anywhere}
 .pform textarea:focus-visible{outline:none}
 .pform .hint{font-family:var(--body);color:var(--note-ink);opacity:.75}
 .sentlist{display:flex;flex-direction:column;gap:10px}
@@ -742,7 +743,7 @@ function viewSheet(k){
     const mine = sent.filter(g=>g.data && (g.data[K.kind]));
     return `<div class="pcol ${K.kind}"><span class="tag">${K.tag}</span>
       <form class="note pform pnote c-${fbColor()}" data-kind="${K.kind}">
-        <textarea id="pt_${K.kind}" data-draft maxlength="600" placeholder="${esc(K.ph)}" aria-label="${esc(K.tag)}">${esc(d["pt_"+K.kind]||"")}</textarea>
+        <textarea id="pt_${K.kind}" data-draft placeholder="${esc(K.ph)}" aria-label="${esc(K.tag)}">${esc(d["pt_"+K.kind]||"")}</textarea>
         <span class="hint" id="pt_${K.kind}_h"></span>
         <div class="foot"><div class="swatches" role="group" aria-label="Color del post-it">${FB_COLORS.map(c=>`<button type="button" class="sw c-${c}" data-act="fbcolor" data-c="${c}" aria-pressed="${fbColor()===c}" aria-label="Color ${FB_NAMES[c]}"></button>`).join("")}</div><button class="notebtn" type="submit">Pegar post-it</button></div>
         ${SIGN.fb?`<span class="signopt">✍️ Va firmado con tu nombre</span>`:`<label class="signopt"><input type="checkbox" id="fbSign"${S.fbSign?" checked":""}> Firmar con mi nombre</label>`}
@@ -910,6 +911,7 @@ document.addEventListener("toggle", e=>{ if(e.target.matches && e.target.matches
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && S.fbFor){ S.fbFor=null; render(); } });
 document.addEventListener("change", e=>{ if(e.target.id==="who") S.recover=false; if(e.target.id==="noteSign") S.compose.sign=e.target.checked; if(e.target.id==="fbSign") S.fbSign=e.target.checked; if(e.target.id==="who"){ S.loginKey=e.target.value; S.err=""; render(); $("#pw")?.focus(); } });
 document.addEventListener("input", e=>{
+  if(e.target.matches?.(".pform textarea")){ e.target.style.height="auto"; e.target.style.height=Math.min(e.target.scrollHeight, innerHeight*.6)+"px"; }
   if(e.target.id==="noteText") S.compose.text = e.target.value;
   if(e.target.id==="noteSign") S.compose.sign = e.target.checked;
   if(e.target.id==="fbSign") S.fbSign = e.target.checked;
