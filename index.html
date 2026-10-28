@@ -446,7 +446,7 @@ async function boot(){
       S.notes = snap.docs.map(d=>({id:d.id, ...d.data()})); render();
     }, ()=>{});
     db.collection("stats").onSnapshot(snap=>{ const s={}; snap.docs.forEach(d=>s[d.id]=d.data()); S.stats=s; if(S.view==="admin") render(); }, ()=>{});
-    if(isAdmin()) db.collection("feedback").onSnapshot(snap=>{ S.fbTo=snap.docs.map(d=>d.data().to); if(S.view==="admin") render(); }, ()=>{});
+    db.collection("feedback").onSnapshot(snap=>{ S.fbTo=snap.docs.map(d=>d.data().to); if(S.view==="admin") render(); }, ()=>{});
     await restoreSession();
   }catch(e){ S.failed=true; render(); }
 }
