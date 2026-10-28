@@ -32,31 +32,36 @@
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}
 [hidden]{display:none!important}
-.slide{container-type:inline-size;aspect-ratio:16/9;background:var(--hero);color:#fff;border-radius:24px;box-shadow:var(--shadow);padding:3.4cqw 4cqw;display:flex;flex-direction:column;gap:2.2cqw;overflow:hidden;position:relative}
-.slide .eyebrow{color:rgba(255,255,255,.85);font-size:1.3cqw}
-.slide h2{font-size:3.6cqw;font-weight:800;color:#fff}
-.slide .top{display:flex;justify-content:space-between;align-items:flex-end;gap:2cqw}
-.slide .date{font-size:1.4cqw;font-weight:600;opacity:.85}
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1.8cqw}
-.kpi{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:1.6cqw;padding:1.6cqw 1.8cqw;display:flex;align-items:center;gap:1.6cqw}
-.kpi svg{width:9cqw;height:9cqw;flex:none;transform:rotate(-90deg)}
-.kpi circle{fill:none;stroke-width:10}
-.kpi .bg{stroke:rgba(255,255,255,.25)} .kpi .fg{stroke:#fff;stroke-linecap:round;transition:stroke-dasharray .6s ease}
-.kpi.ok .fg{stroke:#7CF0A6}
-.kpi .big{font-family:var(--display);font-size:4.4cqw;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
-.kpi .lbl{font-size:1.45cqw;font-weight:700;line-height:1.25;margin-top:.5cqw}
-.kpi .sub{font-size:1.2cqw;opacity:.85;margin-top:.3cqw}
-.kpi .bar{height:1cqw;border-radius:999px;background:rgba(255,255,255,.25);overflow:hidden;margin-top:.8cqw;width:100%}
-.kpi .bar i{display:block;height:100%;background:#7CF0A6;border-radius:999px}
-.kpi.col{flex-direction:column;align-items:flex-start;gap:0}
-.wall{flex:1;min-height:0;background:var(--n-yellow);color:var(--note-ink);border-radius:1.6cqw;padding:1.6cqw 2cqw;display:flex;flex-direction:column;gap:1.2cqw;box-shadow:0 6px 16px rgba(0,0,0,.15)}
-.wall h3{font-size:2cqw;font-weight:800}
-.wall h3 span{font-family:var(--body);font-size:1.3cqw;font-weight:600;opacity:.75;margin-left:.6cqw}
-.winners{display:flex;flex-wrap:wrap;gap:1cqw;align-content:flex-start;overflow:hidden}
-.winner{background:#fff;border-radius:.4cqw .4cqw 1.2cqw .4cqw;padding:.8cqw 1.3cqw;font-family:var(--hand);font-weight:800;font-size:2cqw;box-shadow:0 2px 6px rgba(0,0,0,.12);transform:rotate(var(--r,0deg))}
-.wall .none{font-size:1.5cqw;opacity:.8}
-.presenting #dash{position:fixed;inset:0;z-index:50;aspect-ratio:auto;border-radius:0;justify-content:center;container-type:size}
-.slide .closep{display:none;position:absolute;top:1.4cqw;right:1.4cqw;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:999px;padding:.4rem .9rem;font-weight:700}
+.slide{container-type:inline-size;aspect-ratio:16/9;background:#FFFFFF;color:#1E1A33;border:1px solid #E6E0F2;border-radius:24px;box-shadow:var(--shadow);padding:3.4cqw 4.2cqw;display:flex;flex-direction:column;gap:2cqw;overflow:hidden;position:relative;color-scheme:light}
+.slide .eyebrow{color:#6C4CF1;font-size:1.2cqw}
+.slide h2{font-size:3.4cqw;font-weight:800;color:#1E1A33;margin-top:.4cqw}
+.slide .top{display:flex;justify-content:space-between;align-items:flex-end;gap:2cqw;padding-bottom:1.6cqw;border-bottom:1px solid #ECE8F5}
+.slide .date{font-size:1.3cqw;font-weight:600;color:#6A6483}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6cqw}
+.kpi{background:#FFFFFF;border:1px solid #ECE8F5;border-radius:1.2cqw;padding:1.6cqw 1.8cqw;display:flex;align-items:center;gap:1.6cqw;--k:#6C4CF1;--ks:#EEE9FD}
+.kpi.priv{--k:#E8603C;--ks:#FDE9E2} .kpi.recv{--k:#178A4C;--ks:#DDF5E7}
+.kpi svg{width:8cqw;height:8cqw;flex:none;transform:rotate(-90deg)}
+.kpi circle{fill:none;stroke-width:11}
+.kpi .bg{stroke:var(--ks)} .kpi .fg{stroke:var(--k);stroke-linecap:round;transition:stroke-dasharray .6s ease}
+.kpi .big{font-family:var(--display);font-size:4cqw;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--k)}
+.kpi .big small{font-size:.45em;color:#6A6483;font-weight:700}
+.kpi .lbl{font-size:1.35cqw;font-weight:700;line-height:1.25;margin-top:.6cqw;color:#1E1A33}
+.kpi .sub{font-size:1.1cqw;color:#6A6483;margin-top:.3cqw}
+.kpi .bar{height:.9cqw;border-radius:999px;background:var(--ks);overflow:hidden;margin-top:1cqw;width:100%}
+.kpi .bar i{display:block;height:100%;background:var(--k);border-radius:999px}
+.kpi.col{flex-direction:column;align-items:flex-start;justify-content:center;gap:0}
+.wall{flex:1;min-height:0;background:#FAF8FE;border:1px solid #ECE8F5;border-radius:1.2cqw;padding:1.6cqw 1.8cqw;display:flex;flex-direction:column;gap:1.2cqw}
+.wall .wh{display:flex;justify-content:space-between;align-items:baseline;gap:1cqw}
+.wall h3{font-size:1.8cqw;font-weight:800;color:#1E1A33}
+.wall .wsub{display:block;margin-top:.3cqw;font-size:1.15cqw;color:#6A6483;font-weight:600}
+.wall .badge{background:#DDF5E7;color:#178A4C;font-weight:800;font-size:1.15cqw;padding:.3cqw 1cqw;border-radius:999px;white-space:nowrap}
+.winners{display:grid;grid-template-columns:repeat(4,1fr);gap:.8cqw 1.4cqw;align-content:start;overflow:hidden}
+.winner{display:flex;align-items:center;gap:.8cqw;background:#FFFFFF;border:1px solid #ECE8F5;border-radius:.8cqw;padding:.8cqw 1cqw;font-weight:700;font-size:1.4cqw;color:#1E1A33;min-width:0}
+.winner i{flex:none;width:1.9cqw;height:1.9cqw;border-radius:50%;background:#178A4C;color:#fff;font-style:normal;font-size:1.1cqw;display:grid;place-items:center}
+.winner span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wall .none{font-size:1.35cqw;color:#6A6483}
+.presenting #dash{position:fixed;inset:0;z-index:50;aspect-ratio:auto;border-radius:0;border:0;justify-content:center;container-type:size}
+.slide .closep{display:none;position:absolute;top:1.4cqw;right:1.4cqw;background:#FFFFFF;border:1px solid #E6E0F2;color:#1E1A33;border-radius:999px;padding:.4rem .9rem;font-weight:700}
 .presenting .slide .closep{display:block}
 .dashbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 @media (max-width:640px){
@@ -65,8 +70,10 @@ body{margin:0}
   .kpis{grid-template-columns:1fr;gap:10px}
   .kpi{border-radius:14px;padding:12px 14px;gap:12px} .kpi svg{width:64px;height:64px}
   .kpi .big{font-size:2rem} .kpi .lbl{font-size:.9rem} .kpi .sub{font-size:.8rem} .kpi .bar{height:8px;margin-top:6px}
-  .wall{border-radius:14px;padding:14px;gap:10px} .wall h3{font-size:1.1rem} .wall h3 span{font-size:.8rem;display:block;margin:2px 0 0}
-  .winners{gap:8px} .winner{font-size:.95rem;padding:6px 10px;border-radius:3px 3px 10px 3px} .wall .none{font-size:.9rem}
+  .slide .top{padding-bottom:12px} .wall .wh{flex-direction:column;gap:6px} .wall .wsub,.wall .badge{font-size:.8rem;padding:2px 10px}
+  .winners{grid-template-columns:1fr 1fr} .winner{font-size:.9rem;padding:8px 10px;gap:8px;border-radius:8px} .winner i{width:20px;height:20px;font-size:.7rem}
+  .wall{border-radius:14px;padding:14px;gap:10px} .wall h3{font-size:1.1rem}
+  .winners{gap:8px} .wall .none{font-size:.9rem}
 }
 body{background-color:var(--bg);background-image:radial-gradient(var(--dots) 1.2px,transparent 1.4px);background-size:24px 24px;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
 .wrap{max-width:1100px;margin:0 auto;padding-block:16px 64px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
@@ -911,12 +918,12 @@ function dashHtml(){
     <button class="closep" data-act="closep">✕ Salir</button>
     <div class="top"><div><span class="eyebrow">Feedback 360 DIENN · Avance del equipo</span><h2>¿Cómo vamos?</h2></div><span class="date">Al ${esc(today)}</span></div>
     <div class="kpis">
-      <div class="kpi${pp>=100?" ok":""}">${ring(pp)}<div><div class="big">${pp}%</div><div class="lbl">📝 Feedback público</div><div class="sub">${pubDone} de ${pubGoal} notas (${OTHERS} por persona)</div></div></div>
-      <div class="kpi${pv>=100?" ok":""}">${ring(pv)}<div><div class="big">${pv}%</div><div class="lbl">🔒 Feedback privado</div><div class="sub">${privDone} de ${privGoal} (${MIN_FB} por persona)</div></div></div>
-      <div class="kpi col"><div class="big">${got3} <span style="font-size:.5em;opacity:.8">de ${KEYS.length}</span></div><div class="lbl">🎁 Personas con al menos ${MIN_FB} feedbacks privados recibidos</div><div class="bar"><i style="width:${pct(got3,KEYS.length)}%"></i></div></div>
+      <div class="kpi">${ring(pp)}<div><div class="big">${pp}%</div><div class="lbl">Feedback público</div><div class="sub">${pubDone} de ${pubGoal} notas (${OTHERS} por persona)</div></div></div>
+      <div class="kpi priv">${ring(pv)}<div><div class="big">${pv}%</div><div class="lbl">Feedback privado</div><div class="sub">${privDone} de ${privGoal} (${MIN_FB} por persona)</div></div></div>
+      <div class="kpi col recv"><div class="big">${got3} <small>de ${KEYS.length}</small></div><div class="lbl">Personas con al menos ${MIN_FB} feedbacks privados recibidos</div><div class="bar"><i style="width:${pct(got3,KEYS.length)}%"></i></div></div>
     </div>
-    <div class="wall"><h3>🏆 Lograron la meta<span>${OTHERS} notas públicas + ${MIN_FB} feedbacks privados · ${winners.length} ${winners.length===1?"persona":"personas"}</span></h3>
-      ${winners.length?`<div class="winners">${winners.map((k,i)=>`<span class="winner" style="--r:${[-2,1.5,-1,2,-1.5,1][i%6]}deg">${esc(NAME[k])}</span>`).join("")}</div>`:`<p class="none">Aún nadie completa la meta. ¡Las primeras personas aparecerán aquí!</p>`}
+    <div class="wall"><div class="wh"><div><h3>🏆 Reconocimiento: lograron la meta</h3><span class="wsub">${OTHERS} notas públicas y ${MIN_FB} feedbacks privados</span></div><span class="badge">${winners.length} de ${KEYS.length}</span></div>
+      ${winners.length?`<div class="winners">${winners.map(k=>`<div class="winner"><i aria-hidden="true">✓</i><span>${esc(NAME[k])}</span></div>`).join("")}</div>`:`<p class="none">Aún nadie completa la meta. ¡Las primeras personas aparecerán aquí!</p>`}
     </div>
   </section>`;
 }
