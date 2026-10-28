@@ -929,20 +929,22 @@ function dashHtml(){
 }
 function viewAdmin(){
   if(!isAdmin()) return `<div class="card login"><p class="muted">Esta sección no está disponible.</p></div>`;
+  const recv = {}; (S.fbTo||[]).forEach(t=>{ recv[t]=(recv[t]||0)+1; });
   const rows = KEYS.map(k=>{
-    const reg = !!S.members[k], st = S.stats[k]||{}, g = st.given||0, n = st.notes||0;
+    const reg = !!S.members[k], st = S.stats[k]||{}, g = +(st.given||0), n = +(st.notes||0), r = recv[k]||0;
     return `<tr><td>${esc(NAME[k])}</td><td>${reg?`<span class="chip ok">Registrada</span>`:`<span class="chip">Sin registrarse</span>`}</td>
-      <td data-l="Notas"><b>${n}</b> <span class="muted">de ${OTHERS}</span></td><td data-l="Feedback privado"><b>${g}</b> ${g>=MIN_FB?`<span class="chip ok">✓ mínimo</span>`:`<span class="muted">de ${MIN_FB}</span>`}</td>
+      <td data-l="Notas"><b>${n}</b> <span class="muted">de ${OTHERS}</span></td><td data-l="Privado dado"><b>${g}</b> ${g>=MIN_FB?`<span class="chip ok">✓ mínimo</span>`:`<span class="muted">de ${MIN_FB}</span>`}</td><td data-l="Privado recibido"><b>${r}</b> ${r>=MIN_FB?`<span class="chip ok">✓ 3 o más</span>`:""}</td>
       <td data-l="Cuenta">${reg?`${S.members[k].rwrapped?`<span class="chip ok">🔑 Con código</span> `:""}<button class="linkbtn" data-act="resetacct" data-k="${k}">Reiniciar</button>`:""}</td></tr>`;
   }).join("");
   const regs = KEYS.filter(k=>S.members[k]).length, minOk = KEYS.filter(k=>(S.stats[k]?.given||0)>=MIN_FB).length;
   return `<div class="stack" style="gap:18px">
-    <div class="hero"><span class="eyebrow">Seguimiento · solo administración</span><h1>Avance del Feedback 360</h1>
-      <p>Cuántas notas y cuántos feedbacks privados ha dado cada persona. No se muestra a quién ni qué dicen.</p>
-      <div class="pills"><span class="pill">Registradas: <b>${regs}</b> de ${KEYS.length}</span><span class="pill">Notas en el tablero: <b>${S.notes.length}</b></span><span class="pill">Cumplieron el mínimo: <b>${minOk}</b> de ${KEYS.length}</span></div></div>
-    <div class="dashbar"><button class="btn" data-act="go" data-v="home">Salir del seguimiento</button><button class="btn primary" data-act="fullscreen">⛶ Presentar en pantalla completa</button></div>
+    <div class="dashbar"><div><span class="eyebrow">Seguimiento · solo administración</span><h1 style="font-size:1.6rem">Avance del Feedback 360</h1></div><div class="row" style="gap:8px"><button class="btn" data-act="go" data-v="home">Salir del seguimiento</button><button class="btn primary" data-act="fullscreen">⛶ Presentar en pantalla completa</button></div></div>
     ${dashHtml()}
-    <div class="card tablewrap"><table><thead><tr><th>Persona</th><th>Estado</th><th>Personas con su nota</th><th>Feedback privado</th><th>Cuenta</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <section class="card stack" style="gap:14px"><h2>Métricas</h2>
+      <div class="stats"><div class="stat"><b>${regs}</b><span>registradas de ${KEYS.length}</span></div><div class="stat"><b>${S.notes.length}</b><span>notas en el tablero</span></div><div class="stat"><b>${(S.fbTo||[]).length}</b><span>feedbacks privados enviados</span></div><div class="stat"><b>${minOk}</b><span>dieron ${MIN_FB} privados o más</span></div></div>
+      <p class="small muted">Cuántas notas y feedbacks privados dio y recibió cada persona. No se muestra quién se los dio ni qué dicen.</p>
+      <div class="tablewrap"><table><thead><tr><th>Persona</th><th>Estado</th><th>Personas con su nota</th><th>Privado dado</th><th>Privado recibido</th><th>Cuenta</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </section>
   </div>`;
 }
 
